@@ -13,7 +13,9 @@ export default async function OrderDocketPage({
   const { orderNumber } = await params;
 
   await connectDB();
-  const doc = await OrderModel.findOne({ orderNumber: Number(orderNumber) }).lean();
+  const doc = await OrderModel.findOne({
+    orderNumber: Number(orderNumber),
+  }).lean();
   if (!doc) {
     notFound();
   }
@@ -27,7 +29,7 @@ export default async function OrderDocketPage({
 
       <div className="mb-6 flex items-start justify-between border-b border-zinc-300 pb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-brand">Saifee Gold</h1>
+          <h1 className="text-2xl font-semibold text-brand">SG Order Form</h1>
           <p className="text-sm text-zinc-500">Job worker slip</p>
         </div>
         <div className="text-right">
@@ -54,8 +56,12 @@ export default async function OrderDocketPage({
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-zinc-300">
-            <th className="w-1/2 py-2 text-left font-semibold text-zinc-500">Particulars</th>
-            <th className="py-2 text-left font-semibold text-zinc-500">Remarks</th>
+            <th className="w-1/2 py-2 text-left font-semibold text-zinc-500">
+              Particulars
+            </th>
+            <th className="py-2 text-left font-semibold text-zinc-500">
+              Remarks
+            </th>
           </tr>
         </thead>
         <tbody>

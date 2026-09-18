@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Saifee Gold — Order Tracking",
-  description: "Staff order tracking for Saifee Gold",
+  title: "SG — Order Tracking",
+  description: "Staff order tracking system",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

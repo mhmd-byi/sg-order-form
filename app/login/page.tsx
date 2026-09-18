@@ -40,8 +40,12 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
       >
-        <h1 className="mb-1 text-2xl font-semibold text-brand">Saifee Gold</h1>
-        <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">Staff sign in</p>
+        <h1 className="mb-1 text-2xl font-semibold text-brand">
+          SG Order Form
+        </h1>
+        <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+          Staff sign in
+        </p>
 
         <label className="mb-1 block text-sm font-medium" htmlFor="username">
           Username
