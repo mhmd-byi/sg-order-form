@@ -4,16 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ClipboardList, CirclePlus, Users } from "lucide-react";
 
-const NAV_ITEMS = [
-  { href: "/orders", label: "Orders", icon: ClipboardList },
-  { href: "/orders/new", label: "New Order", icon: CirclePlus },
-];
-
+const ORDERS_NAV_ITEM = { href: "/orders", label: "Orders", icon: ClipboardList };
+const NEW_ORDER_NAV_ITEM = { href: "/orders/new", label: "New Order", icon: CirclePlus };
 const ADMIN_NAV_ITEM = { href: "/users", label: "Users", icon: Users };
 
-export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
+export function BottomNav({ isAdmin, canCreateOrders }: { isAdmin: boolean; canCreateOrders: boolean }) {
   const pathname = usePathname();
-  const items = isAdmin ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
+  const items = [
+    ORDERS_NAV_ITEM,
+    ...(canCreateOrders ? [NEW_ORDER_NAV_ITEM] : []),
+    ...(isAdmin ? [ADMIN_NAV_ITEM] : []),
+  ];
 
   // Match the item whose href is the longest matching path segment prefix,
   // so e.g. /orders/778 highlights "Orders" rather than nothing, and

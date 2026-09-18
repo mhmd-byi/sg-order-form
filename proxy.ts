@@ -19,9 +19,24 @@ export async function proxy(request: NextRequest) {
 
   try {
     const { payload } = await jwtVerify(token, getSecretKey());
-    if (request.nextUrl.pathname.startsWith("/users") && payload.role !== "admin") {
+    const pathname = request.nextUrl.pathname;
+
+    if (pathname.startsWith("/users") && payload.role !== "admin") {
       return NextResponse.redirect(new URL("/orders", request.url));
     }
+
+    if (payload.role === "artisan") {
+      if (pathname === "/orders/new") {
+        return NextResponse.redirect(new URL("/orders", request.url));
+      }
+      // Full order-detail pages carry customer/lab/advance-payment info artisans
+      // shouldn't see — send them to the docket (particulars/remarks only) instead.
+      const detailMatch = pathname.match(/^\/orders\/([^/]+)$/);
+      if (detailMatch) {
+        return NextResponse.redirect(new URL(`${pathname}/docket`, request.url));
+      }
+    }
+
     return NextResponse.next();
   } catch {
     return NextResponse.redirect(loginUrl);

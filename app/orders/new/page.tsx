@@ -1,7 +1,14 @@
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth";
 import { AppHeader } from "@/app/_components/app-header";
 import { NewOrderForm } from "./new-order-form";
 
-export default function NewOrderPage() {
+export default async function NewOrderPage() {
+  const session = await getSession();
+  if (session?.role === "artisan") {
+    redirect("/orders");
+  }
+
   return (
     <div className="flex min-h-full flex-col">
       <AppHeader />

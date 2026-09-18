@@ -6,6 +6,7 @@ import { BottomNav } from "./bottom-nav";
 export async function AppHeader() {
   const session = await getSession();
   const isAdmin = session?.role === "admin";
+  const canCreateOrders = session?.role !== "artisan";
 
   return (
     <>
@@ -17,9 +18,11 @@ export async function AppHeader() {
           <Link href="/orders" className="hover:underline">
             Orders
           </Link>
-          <Link href="/orders/new" className="hover:underline">
-            New Order
-          </Link>
+          {canCreateOrders && (
+            <Link href="/orders/new" className="hover:underline">
+              New Order
+            </Link>
+          )}
           {isAdmin && (
             <Link href="/users" className="hover:underline">
               Users
@@ -31,7 +34,7 @@ export async function AppHeader() {
           <LogoutButton />
         </div>
       </header>
-      <BottomNav isAdmin={isAdmin} />
+      <BottomNav isAdmin={isAdmin} canCreateOrders={canCreateOrders} />
     </>
   );
 }

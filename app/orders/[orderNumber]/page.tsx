@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
 import { toOrderView } from "@/lib/serialize";
+import { getSession } from "@/lib/auth";
 import { AppHeader } from "@/app/_components/app-header";
 import { StatusBadge } from "../_components/status-badge";
 import { StatusAdvanceButton } from "../_components/status-advance-button";
@@ -14,6 +15,11 @@ export default async function OrderDetailPage({
   params: Promise<{ orderNumber: string }>;
 }) {
   const { orderNumber } = await params;
+
+  const session = await getSession();
+  if (session?.role === "artisan") {
+    redirect(`/orders/${orderNumber}/docket`);
+  }
 
   await connectDB();
   const doc = await OrderModel.findOne({ orderNumber: Number(orderNumber) }).lean();
