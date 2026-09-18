@@ -322,18 +322,32 @@ export function NewOrderForm() {
 
                     <div>
                       <label className="mb-1 block text-sm font-medium">Purity</label>
-                      <input
-                        list={`purity-${item.id}`}
-                        value={item.purity}
-                        onChange={(e) => itemsField.replaceValue(index, { ...item, purity: e.target.value })}
-                        required
+                      <select
+                        value={PURITY_SUGGESTIONS[item.metal].includes(item.purity) ? item.purity : "Other"}
+                        onChange={(e) =>
+                          itemsField.replaceValue(index, {
+                            ...item,
+                            purity: e.target.value === "Other" ? "" : e.target.value,
+                          })
+                        }
                         className={inputClass}
-                      />
-                      <datalist id={`purity-${item.id}`}>
+                      >
                         {PURITY_SUGGESTIONS[item.metal].map((p) => (
-                          <option key={p} value={p} />
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
                         ))}
-                      </datalist>
+                        <option value="Other">Other</option>
+                      </select>
+                      {!PURITY_SUGGESTIONS[item.metal].includes(item.purity) && (
+                        <input
+                          value={item.purity}
+                          onChange={(e) => itemsField.replaceValue(index, { ...item, purity: e.target.value })}
+                          placeholder="Enter purity"
+                          required
+                          className={`${inputClass} mt-2`}
+                        />
+                      )}
                     </div>
 
                     <div>

@@ -14,7 +14,7 @@ export const METALS = ["Gold", "Silver", "Platinum"] as const;
 export type Metal = (typeof METALS)[number];
 
 export const PURITY_SUGGESTIONS: Record<Metal, string[]> = {
-  Gold: ["24K", "22K", "18K", "14K"],
+  Gold: ["24K", "23K", "22K", "21K", "20K", "18K", "14K"],
   Silver: ["999", "925"],
   Platinum: ["950"],
 };
