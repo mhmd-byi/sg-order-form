@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { upload } from "@vercel/blob/client";
+import imageCompression from "browser-image-compression";
 import { ITEM_TYPES, METALS, PURITY_SUGGESTIONS, type ItemType, type Metal } from "@/lib/constants";
 import { orderCreateSchema } from "@/lib/validation/order";
 import { AppHeader } from "../_components/app-header";
@@ -41,12 +42,14 @@ function createEmptyItem(): ItemFormValue {
   };
 }
 
+const MAX_PHOTO_SIZE_BYTES = 1024 * 1024; // 1MB
+
 const inputClass =
   "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-brand focus:outline-none dark:border-zinc-700 dark:bg-zinc-900";
 
 export default function NewOrderPage() {
   const router = useRouter();
-  const [uploadingIds, setUploadingIds] = useState<Record<string, boolean>>({});
+  const [photoStatus, setPhotoStatus] = useState<Record<string, "compressing" | "uploading" | undefined>>({});
 
   const createOrder = useMutation({
     mutationFn: async (payload: unknown) => {
@@ -106,9 +109,24 @@ export default function NewOrderPage() {
 
   async function handlePhotoChange(item: ItemFormValue, file: File | undefined, onChange: (next: ItemFormValue) => void) {
     if (!file) return;
-    setUploadingIds((prev) => ({ ...prev, [item.id]: true }));
+
+    let fileToUpload = file;
+    if (file.size > MAX_PHOTO_SIZE_BYTES) {
+      setPhotoStatus((prev) => ({ ...prev, [item.id]: "compressing" }));
+      try {
+        fileToUpload = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: false,
+        });
+      } catch {
+        toast.error("Couldn't compress photo, uploading original");
+      }
+    }
+
+    setPhotoStatus((prev) => ({ ...prev, [item.id]: "uploading" }));
     try {
-      const blob = await upload(`orders/${item.id}-${file.name}`, file, {
+      const blob = await upload(`orders/${item.id}-${fileToUpload.name}`, fileToUpload, {
         access: "public",
         handleUploadUrl: "/api/upload",
       });
@@ -116,7 +134,7 @@ export default function NewOrderPage() {
     } catch {
       toast.error("Photo upload failed");
     } finally {
-      setUploadingIds((prev) => ({ ...prev, [item.id]: false }));
+      setPhotoStatus((prev) => ({ ...prev, [item.id]: undefined }));
     }
   }
 
@@ -365,8 +383,13 @@ export default function NewOrderPage() {
                             }
                             className="text-sm"
                           />
-                          {uploadingIds[item.id] && <p className="mt-1 text-xs text-zinc-500">Uploading…</p>}
-                          {item.photoUrl && !uploadingIds[item.id] && (
+                          {photoStatus[item.id] === "compressing" && (
+                            <p className="mt-1 text-xs text-zinc-500">Compressing…</p>
+                          )}
+                          {photoStatus[item.id] === "uploading" && (
+                            <p className="mt-1 text-xs text-zinc-500">Uploading…</p>
+                          )}
+                          {item.photoUrl && !photoStatus[item.id] && (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={item.photoUrl} alt="" className="mt-2 h-16 w-16 rounded-md object-cover" />
                           )}
