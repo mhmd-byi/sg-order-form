@@ -25,7 +25,7 @@ export default async function OrderDetailPage({
   return (
     <div className="flex min-h-full flex-col">
       <AppHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 pt-8 pb-24 sm:pb-8">
         <div className="mb-6 flex items-start justify-between">
           <div>
             <h1 className="text-xl font-semibold">Order SG-{order.orderNumber}</h1>
