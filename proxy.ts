@@ -18,7 +18,10 @@ export async function proxy(request: NextRequest) {
   }
 
   try {
-    await jwtVerify(token, getSecretKey());
+    const { payload } = await jwtVerify(token, getSecretKey());
+    if (request.nextUrl.pathname.startsWith("/users") && payload.role !== "admin") {
+      return NextResponse.redirect(new URL("/orders", request.url));
+    }
     return NextResponse.next();
   } catch {
     return NextResponse.redirect(loginUrl);

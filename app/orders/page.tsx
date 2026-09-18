@@ -1,7 +1,7 @@
 import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
 import { toOrderView } from "@/lib/serialize";
-import { AppHeader } from "./_components/app-header";
+import { AppHeader } from "@/app/_components/app-header";
 import { OrdersTable } from "./_components/orders-table";
 
 export default async function OrdersPage() {

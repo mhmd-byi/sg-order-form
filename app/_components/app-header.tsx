@@ -1,16 +1,10 @@
-"use client";
-
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { getSession } from "@/lib/auth";
+import { LogoutButton } from "./logout-button";
 
-export function AppHeader() {
-  const router = useRouter();
-
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-    router.refresh();
-  }
+export async function AppHeader() {
+  const session = await getSession();
+  const isAdmin = session?.role === "admin";
 
   return (
     <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-4 print:hidden dark:border-zinc-800 dark:bg-zinc-950">
@@ -24,12 +18,12 @@ export function AppHeader() {
         <Link href="/orders/new" className="hover:underline">
           New Order
         </Link>
-        <button
-          onClick={handleLogout}
-          className="text-zinc-500 hover:underline dark:text-zinc-400"
-        >
-          Log out
-        </button>
+        {isAdmin && (
+          <Link href="/users" className="hover:underline">
+            Users
+          </Link>
+        )}
+        <LogoutButton />
       </nav>
     </header>
   );
