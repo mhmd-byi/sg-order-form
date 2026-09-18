@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/constants";
+import { getOrderPriority } from "@/lib/priority";
 import type { OrderView } from "@/lib/types";
+import { PriorityBadge } from "./priority-badge";
 
 async function fetchOrders(): Promise<OrderView[]> {
   const response = await fetch("/api/orders");
@@ -37,7 +39,12 @@ export function KanbanBoard({ initialOrders }: { initialOrders: OrderView[] }) {
                   href={`/orders/${order.orderNumber}`}
                   className="block rounded-md border border-zinc-200 bg-white p-3 text-sm shadow-sm hover:border-brand dark:border-zinc-800 dark:bg-zinc-950"
                 >
-                  <p className="font-medium">SG-{order.orderNumber}</p>
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <p className="font-medium">SG-{order.orderNumber}</p>
+                    {order.status !== "Delivered" && (
+                      <PriorityBadge priority={getOrderPriority(order.createdAt, order.deliveryDate)} />
+                    )}
+                  </div>
                   <p className="text-zinc-600 dark:text-zinc-400">{order.customer.name}</p>
                   <p className="mt-1 text-xs text-zinc-500">
                     Due{" "}
