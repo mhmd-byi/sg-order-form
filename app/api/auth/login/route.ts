@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     staffId: staff._id.toString(),
     username: staff.username,
     name: staff.name,
+    role: staff.role ?? "staff",
   });
 
   return NextResponse.json({ ok: true });

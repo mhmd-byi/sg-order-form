@@ -43,7 +43,7 @@ export async function PATCH(
   const order = await OrderModel.findOneAndUpdate(
     { orderNumber: Number(orderNumber) },
     { status: parsed.data.status },
-    { new: true },
+    { returnDocument: "after" },
   );
   if (!order) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });

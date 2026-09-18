@@ -35,3 +35,6 @@ export const NEXT_STATUS: Record<OrderStatus, OrderStatus | null> = {
   Ready: "Delivered",
   Delivered: null,
 };
+
+export const STAFF_ROLES = ["admin", "staff"] as const;
+export type StaffRole = (typeof STAFF_ROLES)[number];
