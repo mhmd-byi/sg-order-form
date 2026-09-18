@@ -17,6 +17,7 @@ interface OrderDocLike {
   deliveryDate: Date | string;
   labDetails?: string | null;
   advancePayment?: { amount?: number | null; date?: Date | string | null } | null;
+  assignedArtisan?: { toString(): string } | null;
 }
 
 export function toOrderView(doc: OrderDocLike): OrderView {
@@ -43,5 +44,6 @@ export function toOrderView(doc: OrderDocLike): OrderView {
       doc.advancePayment?.amount != null && doc.advancePayment?.date != null
         ? { amount: doc.advancePayment.amount, date: new Date(doc.advancePayment.date).toISOString() }
         : undefined,
+    assignedArtisan: doc.assignedArtisan ? doc.assignedArtisan.toString() : undefined,
   };
 }

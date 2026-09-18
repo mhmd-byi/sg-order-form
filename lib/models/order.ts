@@ -36,6 +36,7 @@ const orderSchema = new Schema(
       date: { type: Date },
     },
     status: { type: String, enum: ORDER_STATUSES, default: "Pending" },
+    assignedArtisan: { type: Schema.Types.ObjectId, ref: "Staff", default: null },
     createdBy: { type: Schema.Types.ObjectId, ref: "Staff", required: true },
   },
   { timestamps: true },

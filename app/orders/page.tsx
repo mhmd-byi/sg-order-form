@@ -4,7 +4,7 @@ import { OrderModel } from "@/lib/models/order";
 import { toOrderView } from "@/lib/serialize";
 import { getSession } from "@/lib/auth";
 import { AppHeader } from "@/app/_components/app-header";
-import { OrdersTable } from "./_components/orders-table";
+import { OrdersView } from "./_components/orders-view";
 import { StatusBadge } from "./_components/status-badge";
 
 export default async function OrdersPage() {
@@ -70,7 +70,7 @@ export default async function OrdersPage() {
             </table>
           </div>
         ) : (
-          <OrdersTable orders={orders} />
+          <OrdersView orders={orders} />
         )}
       </main>
     </div>

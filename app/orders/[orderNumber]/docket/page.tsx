@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
 import { toOrderView } from "@/lib/serialize";
+import { getSession } from "@/lib/auth";
 import { PrintButton } from "../../_components/print-button";
+import { StatusActionButton } from "../../_components/status-action-button";
 
 export default async function OrderDocketPage({
   params,
@@ -12,24 +14,38 @@ export default async function OrderDocketPage({
 }) {
   const { orderNumber } = await params;
 
+  const session = await getSession();
+
   await connectDB();
-  const doc = await OrderModel.findOne({
-    orderNumber: Number(orderNumber),
-  }).lean();
+  const doc = await OrderModel.findOne({ orderNumber: Number(orderNumber) }).lean();
   if (!doc) {
     notFound();
   }
   const order = toOrderView(doc);
 
+  const canPick = session?.role === "artisan" && order.status === "Pending";
+  const canMarkShowroom =
+    session?.role === "artisan" && order.status === "InProgress" && order.assignedArtisan === session.staffId;
+
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-8">
       <div className="mb-6 flex items-center justify-between print:hidden">
         <PrintButton />
+        {canPick && (
+          <StatusActionButton orderNumber={order.orderNumber} targetStatus="InProgress" label="Pick this order" />
+        )}
+        {canMarkShowroom && (
+          <StatusActionButton
+            orderNumber={order.orderNumber}
+            targetStatus="Ready"
+            label="Mark delivered to showroom"
+          />
+        )}
       </div>
 
       <div className="mb-6 flex items-start justify-between border-b border-zinc-300 pb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-brand">SG Order Form</h1>
+          <h1 className="text-2xl font-semibold text-brand">Saifee Gold</h1>
           <p className="text-sm text-zinc-500">Job worker slip</p>
         </div>
         <div className="text-right">
@@ -56,12 +72,8 @@ export default async function OrderDocketPage({
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-zinc-300">
-            <th className="w-1/2 py-2 text-left font-semibold text-zinc-500">
-              Particulars
-            </th>
-            <th className="py-2 text-left font-semibold text-zinc-500">
-              Remarks
-            </th>
+            <th className="w-1/2 py-2 text-left font-semibold text-zinc-500">Particulars</th>
+            <th className="py-2 text-left font-semibold text-zinc-500">Remarks</th>
           </tr>
         </thead>
         <tbody>

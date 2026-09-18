@@ -5,9 +5,10 @@ import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
 import { toOrderView } from "@/lib/serialize";
 import { getSession } from "@/lib/auth";
+import { NEXT_STATUS, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/constants";
 import { AppHeader } from "@/app/_components/app-header";
 import { StatusBadge } from "../_components/status-badge";
-import { StatusAdvanceButton } from "../_components/status-advance-button";
+import { StatusActionButton } from "../_components/status-action-button";
 
 export default async function OrderDetailPage({
   params,
@@ -28,6 +29,24 @@ export default async function OrderDetailPage({
   }
   const order = toOrderView(doc);
 
+  const actions: Array<{ targetStatus: OrderStatus; label: string; variant?: "primary" | "secondary" }> = [];
+  if (session?.role === "admin") {
+    const next = NEXT_STATUS[order.status];
+    if (next) {
+      actions.push({ targetStatus: next, label: `Mark as ${ORDER_STATUS_LABELS[next]}` });
+    }
+    if (order.status === "InProgress") {
+      actions.push({ targetStatus: "Pending", label: "Release to Pending", variant: "secondary" });
+    }
+  } else if (session?.role === "staff") {
+    if (order.status === "Ready") {
+      actions.push({ targetStatus: "Delivered", label: "Mark as Delivered" });
+    }
+    if (order.status === "InProgress") {
+      actions.push({ targetStatus: "Pending", label: "Release to Pending", variant: "secondary" });
+    }
+  }
+
   return (
     <div className="flex min-h-full flex-col">
       <AppHeader />
@@ -47,7 +66,9 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="mb-6 flex flex-wrap gap-3">
-          <StatusAdvanceButton orderNumber={order.orderNumber} status={order.status} />
+          {actions.map((action) => (
+            <StatusActionButton key={action.targetStatus} orderNumber={order.orderNumber} {...action} />
+          ))}
           <Link
             href={`/orders/${order.orderNumber}/docket`}
             className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"

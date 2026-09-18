@@ -23,4 +23,5 @@ export interface OrderView {
   deliveryDate: string;
   labDetails: string;
   advancePayment?: AdvancePaymentView;
+  assignedArtisan?: string;
 }

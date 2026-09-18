@@ -4,16 +4,20 @@ import { OrderModel } from "@/lib/models/order";
 import { getSession } from "@/lib/auth";
 import { getNextOrderNumber } from "@/lib/order-number";
 import { orderCreateSchema } from "@/lib/validation/order";
+import { toOrderView } from "@/lib/serialize";
 
 export async function GET() {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (session.role === "artisan") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   await connectDB();
-  const orders = await OrderModel.find().sort({ createdAt: -1 }).lean();
-  return NextResponse.json({ orders });
+  const docs = await OrderModel.find().sort({ createdAt: -1 }).lean();
+  return NextResponse.json({ orders: docs.map(toOrderView) });
 }
 
 export async function POST(request: Request) {
