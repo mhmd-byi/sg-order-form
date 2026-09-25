@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import { StaffModel } from "@/lib/models/staff";
 import { getSession } from "@/lib/auth";
 import { AppHeader } from "@/app/_components/app-header";
+import { DeleteUserButton } from "./_components/delete-user-button";
 
 export default async function UsersPage() {
   const session = await getSession();
@@ -37,21 +38,34 @@ export default async function UsersPage() {
                 <th className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Email</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Role</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">City</th>
+                <th className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400"></th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={String(user._id)} className="border-t border-zinc-100 dark:border-zinc-800">
-                  <td className="px-4 py-3">{user.name}</td>
-                  <td className="px-4 py-3">{user.username}</td>
-                  <td className="px-4 py-3">{user.email}</td>
-                  <td className="px-4 py-3 capitalize">{user.role}</td>
-                  <td className="px-4 py-3">{user.city}</td>
-                </tr>
-              ))}
+              {users.map((user) => {
+                const userId = String(user._id);
+                const isSelf = userId === session.staffId;
+                return (
+                  <tr key={userId} className="border-t border-zinc-100 dark:border-zinc-800">
+                    <td className="px-4 py-3">{user.name}</td>
+                    <td className="px-4 py-3">{user.username}</td>
+                    <td className="px-4 py-3">{user.email}</td>
+                    <td className="px-4 py-3 capitalize">{user.role}</td>
+                    <td className="px-4 py-3">{user.city}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <Link href={`/users/${userId}/edit`} className="text-sm text-brand hover:underline">
+                          Edit
+                        </Link>
+                        {!isSelf && <DeleteUserButton userId={userId} username={user.username} />}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
                     No users yet.
                   </td>
                 </tr>

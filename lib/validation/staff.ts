@@ -11,3 +11,14 @@ export const staffCreateSchema = z.object({
 });
 
 export type StaffCreateInput = z.infer<typeof staffCreateSchema>;
+
+export const staffUpdateSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  email: z.email("Enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters").optional(),
+  name: z.string().min(1, "Name is required"),
+  role: z.enum(STAFF_ROLES),
+  city: z.enum(CITIES),
+});
+
+export type StaffUpdateInput = z.infer<typeof staffUpdateSchema>;
