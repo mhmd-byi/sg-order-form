@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ITEM_TYPES, METALS, ORDER_STATUSES, LABOUR_TYPES, SIZE_UNITS, RATE_STATUSES } from "../constants";
+import { ITEM_TYPES, METALS, ORDER_STATUSES, LABOUR_TYPES, SIZE_UNITS, RATE_STATUSES, ARTISAN_STAGES } from "../constants";
 
 export const orderItemSchema = z
   .object({
@@ -55,4 +55,8 @@ export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
 
 export const orderStatusUpdateSchema = z.object({
   status: z.enum(ORDER_STATUSES),
+});
+
+export const orderStageUpdateSchema = z.object({
+  artisanStage: z.enum(ARTISAN_STAGES),
 });

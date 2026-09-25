@@ -4,8 +4,10 @@ import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
 import { toOrderView } from "@/lib/serialize";
 import { getSession } from "@/lib/auth";
+import { ARTISAN_STAGE_LABELS, NEXT_ARTISAN_STAGE, type ArtisanStage } from "@/lib/constants";
 import { PrintButton } from "../../_components/print-button";
 import { StatusActionButton } from "../../_components/status-action-button";
+import { StageActionButton } from "../../_components/stage-action-button";
 import { AppHeader } from "@/app/_components/app-header";
 
 export default async function OrderDocketPage({
@@ -27,8 +29,17 @@ export default async function OrderDocketPage({
   const canPick =
     session?.role === "artisan" &&
     (order.status === "Pending" || (order.status === "InProgress" && !order.assignedArtisan));
-  const canMarkShowroom =
+  const isOwner =
     session?.role === "artisan" && order.status === "InProgress" && order.assignedArtisan === session.staffId;
+  const currentStage: ArtisanStage | null = order.status === "InProgress" ? (order.artisanStage ?? "Accepted") : null;
+  const nextStage = currentStage ? NEXT_ARTISAN_STAGE[currentStage] : null;
+
+  const STAGE_ACTION_LABELS: Record<ArtisanStage, string> = {
+    Accepted: "",
+    Started: "Start work",
+    Completed: "Mark completed",
+    Dispatched: "Dispatch to showroom",
+  };
 
   return (
     <div className="flex min-h-full flex-col">
@@ -39,11 +50,11 @@ export default async function OrderDocketPage({
           {canPick && (
             <StatusActionButton orderNumber={order.orderNumber} targetStatus="InProgress" label="Pick this order" />
           )}
-          {canMarkShowroom && (
-            <StatusActionButton
+          {isOwner && nextStage && (
+            <StageActionButton
               orderNumber={order.orderNumber}
-              targetStatus="Ready"
-              label="Mark delivered to showroom"
+              targetStage={nextStage}
+              label={STAGE_ACTION_LABELS[nextStage]}
             />
           )}
         </div>
@@ -71,6 +82,7 @@ export default async function OrderDocketPage({
                 year: "numeric",
               })}
             </p>
+            {currentStage && <p className="text-sm text-zinc-500">Stage: {ARTISAN_STAGE_LABELS[currentStage]}</p>}
           </div>
         </div>
 

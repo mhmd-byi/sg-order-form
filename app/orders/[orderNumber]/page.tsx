@@ -5,7 +5,7 @@ import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
 import { toOrderView } from "@/lib/serialize";
 import { getSession } from "@/lib/auth";
-import { NEXT_STATUS, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/constants";
+import { NEXT_STATUS, ORDER_STATUS_LABELS, ARTISAN_STAGE_LABELS, type OrderStatus } from "@/lib/constants";
 import { AppHeader } from "@/app/_components/app-header";
 import { StatusBadge } from "../_components/status-badge";
 import { StatusActionButton } from "../_components/status-action-button";
@@ -63,7 +63,14 @@ export default async function OrderDetailPage({
               · {order.city}
             </p>
           </div>
-          <StatusBadge status={order.status} />
+          <div className="text-right">
+            <StatusBadge status={order.status} />
+            {order.status === "InProgress" && (
+              <p className="mt-1 text-xs text-zinc-500">
+                Artisan stage: {ARTISAN_STAGE_LABELS[order.artisanStage ?? "Accepted"]}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="mb-6 flex flex-wrap gap-3">

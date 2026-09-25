@@ -1,5 +1,14 @@
 import { Schema, model, models, type InferSchemaType } from "mongoose";
-import { ITEM_TYPES, METALS, ORDER_STATUSES, LABOUR_TYPES, SIZE_UNITS, RATE_STATUSES, CITIES } from "../constants";
+import {
+  ITEM_TYPES,
+  METALS,
+  ORDER_STATUSES,
+  LABOUR_TYPES,
+  SIZE_UNITS,
+  RATE_STATUSES,
+  CITIES,
+  ARTISAN_STAGES,
+} from "../constants";
 
 const orderItemSchema = new Schema(
   {
@@ -50,6 +59,7 @@ const orderSchema = new Schema(
     },
     status: { type: String, enum: ORDER_STATUSES, default: "Pending" },
     assignedArtisan: { type: Schema.Types.ObjectId, ref: "Staff", default: null },
+    artisanStage: { type: String, enum: ARTISAN_STAGES, default: null },
     createdBy: { type: Schema.Types.ObjectId, ref: "Staff", required: true },
   },
   { timestamps: true },

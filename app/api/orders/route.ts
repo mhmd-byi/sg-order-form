@@ -68,6 +68,7 @@ export async function POST(request: Request) {
     // picked from the pool, so it starts at InProgress instead of Pending.
     status: assignedArtisan ? "InProgress" : "Pending",
     assignedArtisan,
+    artisanStage: assignedArtisan ? "Accepted" : undefined,
     createdBy: session.staffId,
   });
 

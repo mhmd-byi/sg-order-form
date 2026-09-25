@@ -1,4 +1,4 @@
-import type { ItemType, Metal, OrderStatus, LabourType, SizeUnit, RateStatus, City } from "./constants";
+import type { ItemType, Metal, OrderStatus, LabourType, SizeUnit, RateStatus, City, ArtisanStage } from "./constants";
 import type { OrderView } from "./types";
 
 interface OrderDocLike {
@@ -33,6 +33,7 @@ interface OrderDocLike {
     date?: Date | string | null;
   } | null;
   assignedArtisan?: { toString(): string } | null;
+  artisanStage?: ArtisanStage | null;
   signatureUrl?: string | null;
 }
 
@@ -77,6 +78,7 @@ export function toOrderView(doc: OrderDocLike): OrderView {
           }
         : undefined,
     assignedArtisan: doc.assignedArtisan ? doc.assignedArtisan.toString() : undefined,
+    artisanStage: doc.artisanStage ?? undefined,
     signatureUrl: doc.signatureUrl ?? undefined,
   };
 }

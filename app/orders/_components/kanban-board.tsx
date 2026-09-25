@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/constants";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, ARTISAN_STAGE_LABELS } from "@/lib/constants";
 import { getOrderPriority } from "@/lib/priority";
 import type { OrderView } from "@/lib/types";
 import { PriorityBadge } from "./priority-badge";
@@ -54,6 +54,11 @@ export function KanbanBoard({ initialOrders }: { initialOrders: OrderView[] }) {
                     })}{" "}
                     · {order.city}
                   </p>
+                  {status === "InProgress" && (
+                    <p className="mt-1 text-xs text-zinc-500">
+                      Stage: {ARTISAN_STAGE_LABELS[order.artisanStage ?? "Accepted"]}
+                    </p>
+                  )}
                 </Link>
               ))}
               {columnOrders.length === 0 && <p className="px-1 py-4 text-center text-xs text-zinc-400">No orders</p>}

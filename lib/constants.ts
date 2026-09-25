@@ -50,3 +50,24 @@ export type SizeUnit = (typeof SIZE_UNITS)[number];
 
 export const CITIES = ["Indore", "Ratlam"] as const;
 export type City = (typeof CITIES)[number];
+
+// An artisan's sub-workflow while an order is InProgress. Entered
+// automatically at "Accepted" the moment an order is picked/assigned to
+// them — reaching "Dispatched" is what moves the order's top-level status
+// from InProgress to Ready.
+export const ARTISAN_STAGES = ["Accepted", "Started", "Completed", "Dispatched"] as const;
+export type ArtisanStage = (typeof ARTISAN_STAGES)[number];
+
+export const ARTISAN_STAGE_LABELS: Record<ArtisanStage, string> = {
+  Accepted: "Accepted",
+  Started: "Started",
+  Completed: "Completed",
+  Dispatched: "Dispatched",
+};
+
+export const NEXT_ARTISAN_STAGE: Record<ArtisanStage, ArtisanStage | null> = {
+  Accepted: "Started",
+  Started: "Completed",
+  Completed: "Dispatched",
+  Dispatched: null,
+};
