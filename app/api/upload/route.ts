@@ -17,6 +17,11 @@ export async function POST(request: Request) {
     const jsonResponse = await handleUpload({
       body,
       request,
+      // Force the static read-write token rather than letting the SDK prefer
+      // OIDC when both are present in env — OIDC tokens are short-lived and
+      // only auto-refresh under `vercel dev`, not plain `next dev`, which was
+      // causing "store does not exist" once a VERCEL_OIDC_TOKEN showed up.
+      token: process.env.BLOB_READ_WRITE_TOKEN,
       onBeforeGenerateToken: async () => ({
         allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/heic", "video/*", "audio/*"],
         addRandomSuffix: true,
