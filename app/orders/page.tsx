@@ -11,7 +11,10 @@ export default async function OrdersPage() {
   const session = await getSession();
 
   await connectDB();
-  const docs = await OrderModel.find().sort({ createdAt: -1 }).lean();
+  // Artisans only see orders currently or previously assigned to them —
+  // not the general Pending pool or other artisans' work.
+  const query = session?.role === "artisan" ? { assignedArtisan: session.staffId } : {};
+  const docs = await OrderModel.find(query).sort({ createdAt: -1 }).lean();
   const orders = docs.map(toOrderView);
 
   return (
