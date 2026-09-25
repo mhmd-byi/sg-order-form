@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { connectDB } from "@/lib/db";
@@ -12,6 +11,7 @@ import { StatusBadge } from "../_components/status-badge";
 import { StatusActionButton } from "../_components/status-action-button";
 import { AssignArtisanButton } from "../_components/assign-artisan-button";
 import { CommentSection } from "../_components/comment-section";
+import { PhotoThumbnail } from "../_components/photo-thumbnail";
 
 export default async function OrderDetailPage({
   params,
@@ -178,11 +178,10 @@ export default async function OrderDetailPage({
                 className="flex gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
               >
                 {item.photoUrl && (
-                  <Image
+                  <PhotoThumbnail
                     src={item.photoUrl}
                     alt={item.itemType}
-                    width={80}
-                    height={80}
+                    size={80}
                     className="h-20 w-20 rounded-md object-cover"
                   />
                 )}

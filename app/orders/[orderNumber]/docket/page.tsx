@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
@@ -10,6 +9,7 @@ import { StatusActionButton } from "../../_components/status-action-button";
 import { StageActionButton } from "../../_components/stage-action-button";
 import { DispatchButton } from "../../_components/dispatch-button";
 import { CommentSection } from "../../_components/comment-section";
+import { PhotoThumbnail } from "../../_components/photo-thumbnail";
 import { AppHeader } from "@/app/_components/app-header";
 
 export default async function OrderDocketPage({
@@ -110,11 +110,10 @@ export default async function OrderDocketPage({
                 </td>
                 <td className="py-3">
                   {item.photoUrl && (
-                    <Image
+                    <PhotoThumbnail
                       src={item.photoUrl}
                       alt={item.itemType}
-                      width={64}
-                      height={64}
+                      size={64}
                       className="mb-2 h-16 w-16 object-cover"
                     />
                   )}
