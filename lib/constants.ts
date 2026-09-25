@@ -6,6 +6,8 @@ export const ITEM_TYPES = [
   "Chain",
   "Bracelet",
   "Pendant",
+  "Gents rings",
+  "Silver ring",
   "Other",
 ] as const;
 export type ItemType = (typeof ITEM_TYPES)[number];
