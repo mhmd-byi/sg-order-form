@@ -9,6 +9,7 @@ import { NEXT_STATUS, ORDER_STATUS_LABELS, ARTISAN_STAGE_LABELS, type OrderStatu
 import { AppHeader } from "@/app/_components/app-header";
 import { StatusBadge } from "../_components/status-badge";
 import { StatusActionButton } from "../_components/status-action-button";
+import { CommentSection } from "../_components/comment-section";
 
 export default async function OrderDetailPage({
   params,
@@ -207,6 +208,10 @@ export default async function OrderDetailPage({
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="mt-8">
+          <CommentSection orderNumber={order.orderNumber} comments={order.comments} />
         </section>
       </main>
     </div>

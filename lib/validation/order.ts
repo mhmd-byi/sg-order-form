@@ -80,3 +80,13 @@ export const orderStageUpdateSchema = z
     message: "Enter the name of who picked it up",
     path: ["dispatchedByName"],
   });
+
+export const orderCommentCreateSchema = z
+  .object({
+    text: z.string().trim().optional(),
+    voiceNoteUrl: z.string().min(1).optional(),
+  })
+  .refine((data) => !!data.text?.trim() || !!data.voiceNoteUrl, {
+    message: "Enter a comment or attach a voice note",
+    path: ["text"],
+  });

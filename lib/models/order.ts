@@ -9,6 +9,7 @@ import {
   CITIES,
   ARTISAN_STAGES,
   DISPATCH_METHODS,
+  STAFF_ROLES,
 } from "../constants";
 
 const orderItemSchema = new Schema(
@@ -25,6 +26,18 @@ const orderItemSchema = new Schema(
     voiceNoteUrl: { type: String },
     labourType: { type: String, enum: LABOUR_TYPES },
     labourValue: { type: Number, min: 0 },
+  },
+  { _id: false },
+);
+
+const orderCommentSchema = new Schema(
+  {
+    authorId: { type: Schema.Types.ObjectId, ref: "Staff", required: true },
+    authorName: { type: String, required: true },
+    authorRole: { type: String, enum: STAFF_ROLES, required: true },
+    text: { type: String, trim: true },
+    voiceNoteUrl: { type: String },
+    createdAt: { type: Date, default: Date.now },
   },
   { _id: false },
 );
@@ -63,6 +76,7 @@ const orderSchema = new Schema(
     artisanStage: { type: String, enum: ARTISAN_STAGES, default: null },
     dispatchMethod: { type: String, enum: DISPATCH_METHODS },
     dispatchedByName: { type: String, trim: true },
+    comments: { type: [orderCommentSchema], default: [] },
     createdBy: { type: Schema.Types.ObjectId, ref: "Staff", required: true },
   },
   { timestamps: true },

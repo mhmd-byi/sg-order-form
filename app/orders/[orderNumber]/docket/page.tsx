@@ -9,6 +9,7 @@ import { PrintButton } from "../../_components/print-button";
 import { StatusActionButton } from "../../_components/status-action-button";
 import { StageActionButton } from "../../_components/stage-action-button";
 import { DispatchButton } from "../../_components/dispatch-button";
+import { CommentSection } from "../../_components/comment-section";
 import { AppHeader } from "@/app/_components/app-header";
 
 export default async function OrderDocketPage({
@@ -145,6 +146,10 @@ export default async function OrderDocketPage({
             ))}
           </tbody>
         </table>
+
+        <div className="mt-8">
+          <CommentSection orderNumber={order.orderNumber} comments={order.comments} />
+        </div>
       </main>
     </div>
   );

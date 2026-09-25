@@ -8,6 +8,7 @@ import type {
   City,
   ArtisanStage,
   DispatchMethod,
+  StaffRole,
 } from "./constants";
 import type { OrderView } from "./types";
 
@@ -47,6 +48,13 @@ interface OrderDocLike {
   dispatchMethod?: DispatchMethod | null;
   dispatchedByName?: string | null;
   signatureUrl?: string | null;
+  comments?: Array<{
+    authorName: string;
+    authorRole: StaffRole;
+    text?: string | null;
+    voiceNoteUrl?: string | null;
+    createdAt: Date | string;
+  }> | null;
 }
 
 export function toOrderView(doc: OrderDocLike): OrderView {
@@ -94,5 +102,12 @@ export function toOrderView(doc: OrderDocLike): OrderView {
     dispatchMethod: doc.dispatchMethod ?? undefined,
     dispatchedByName: doc.dispatchedByName ?? undefined,
     signatureUrl: doc.signatureUrl ?? undefined,
+    comments: (doc.comments ?? []).map((comment) => ({
+      authorName: comment.authorName,
+      authorRole: comment.authorRole,
+      text: comment.text ?? undefined,
+      voiceNoteUrl: comment.voiceNoteUrl ?? undefined,
+      createdAt: new Date(comment.createdAt).toISOString(),
+    })),
   };
 }

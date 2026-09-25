@@ -8,7 +8,16 @@ import type {
   City,
   ArtisanStage,
   DispatchMethod,
+  StaffRole,
 } from "./constants";
+
+export interface OrderCommentView {
+  authorName: string;
+  authorRole: StaffRole;
+  text?: string;
+  voiceNoteUrl?: string;
+  createdAt: string;
+}
 
 export interface OrderItemView {
   itemType: ItemType;
@@ -50,4 +59,5 @@ export interface OrderView {
   dispatchMethod?: DispatchMethod;
   dispatchedByName?: string;
   signatureUrl?: string;
+  comments: OrderCommentView[];
 }
