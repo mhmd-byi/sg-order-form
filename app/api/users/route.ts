@@ -43,10 +43,13 @@ export async function POST(request: Request) {
     passwordHash,
     name: parsed.data.name,
     role: parsed.data.role,
+    city: parsed.data.city,
   });
 
   return NextResponse.json(
-    { user: { username: user.username, email: user.email, name: user.name, role: user.role } },
+    {
+      user: { username: user.username, email: user.email, name: user.name, role: user.role, city: user.city },
+    },
     { status: 201 },
   );
 }

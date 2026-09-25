@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     username: staff.username,
     name: staff.name,
     role: staff.role ?? "staff",
+    city: staff.city ?? "Indore",
   });
 
   return NextResponse.json({ ok: true });

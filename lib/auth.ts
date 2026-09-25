@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import type { StaffRole } from "./constants";
+import type { StaffRole, City } from "./constants";
 
 export const SESSION_COOKIE = "sg_session";
 const SESSION_DURATION_SECONDS = 60 * 60 * 12; // 12h, shared shop device
@@ -16,6 +16,7 @@ export interface SessionPayload {
   username: string;
   name: string;
   role: StaffRole;
+  city: City;
 }
 
 export async function createSession(payload: SessionPayload) {

@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       body,
       request,
       onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/heic"],
+        allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/heic", "video/*", "audio/*"],
         addRandomSuffix: true,
       }),
     });

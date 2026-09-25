@@ -1,5 +1,5 @@
 import { Schema, model, models, type InferSchemaType } from "mongoose";
-import { ITEM_TYPES, METALS, ORDER_STATUSES } from "../constants";
+import { ITEM_TYPES, METALS, ORDER_STATUSES, LABOUR_TYPES, SIZE_UNITS, RATE_STATUSES, CITIES } from "../constants";
 
 const orderItemSchema = new Schema(
   {
@@ -7,8 +7,14 @@ const orderItemSchema = new Schema(
     metal: { type: String, enum: METALS, required: true },
     purity: { type: String, required: true, trim: true },
     weightGrams: { type: Number, required: true, min: 0 },
+    size: { type: String, trim: true, default: "" },
+    sizeUnit: { type: String, enum: SIZE_UNITS },
     designDetails: { type: String, trim: true, default: "" },
     photoUrl: { type: String },
+    videoUrl: { type: String },
+    voiceNoteUrl: { type: String },
+    labourType: { type: String, enum: LABOUR_TYPES },
+    labourValue: { type: Number, min: 0 },
   },
   { _id: false },
 );
@@ -31,8 +37,15 @@ const orderSchema = new Schema(
     },
     deliveryDate: { type: Date, required: true },
     labDetails: { type: String, trim: true, default: "" },
+    rateStatus: { type: String, enum: RATE_STATUSES, required: true, default: "Unfixed" },
+    rateValue: { type: Number, min: 0, required: true },
+    ratePurity: { type: String, required: true, trim: true },
+    city: { type: String, enum: CITIES, required: true },
+    signatureUrl: { type: String },
     advancePayment: {
-      amount: { type: Number, min: 0 },
+      cashAmount: { type: Number, min: 0 },
+      upiAmount: { type: Number, min: 0 },
+      goldGrams: { type: Number, min: 0 },
       date: { type: Date },
     },
     status: { type: String, enum: ORDER_STATUSES, default: "Pending" },

@@ -43,7 +43,12 @@ export async function POST(request: Request) {
     items: parsed.data.items,
     deliveryDate: parsed.data.deliveryDate,
     labDetails: parsed.data.labDetails,
+    rateStatus: parsed.data.rateStatus,
+    rateValue: parsed.data.rateValue,
+    ratePurity: parsed.data.ratePurity,
+    city: session.city,
     advancePayment: parsed.data.advancePayment,
+    signatureUrl: parsed.data.signatureUrl,
     createdBy: session.staffId,
   });
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { STAFF_ROLES } from "../constants";
+import { STAFF_ROLES, CITIES } from "../constants";
 
 export const staffCreateSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -7,6 +7,7 @@ export const staffCreateSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   name: z.string().min(1, "Name is required"),
   role: z.enum(STAFF_ROLES),
+  city: z.enum(CITIES),
 });
 
 export type StaffCreateInput = z.infer<typeof staffCreateSchema>;

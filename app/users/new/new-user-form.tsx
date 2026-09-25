@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { STAFF_ROLES, type StaffRole } from "@/lib/constants";
+import { STAFF_ROLES, CITIES, type StaffRole, type City } from "@/lib/constants";
 
 const inputClass =
   "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-brand focus:outline-none dark:border-zinc-700 dark:bg-zinc-900";
@@ -16,13 +16,14 @@ export function NewUserForm() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<StaffRole>("staff");
+  const [city, setCity] = useState<City>("Indore");
 
   const createUser = useMutation({
     mutationFn: async () => {
       const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password, name, role }),
+        body: JSON.stringify({ username, email, password, name, role, city }),
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -79,6 +80,16 @@ export function NewUserForm() {
           {STAFF_ROLES.map((r) => (
             <option key={r} value={r}>
               {r}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium">City</label>
+        <select value={city} onChange={(e) => setCity(e.target.value as City)} className={inputClass}>
+          {CITIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
             </option>
           ))}
         </select>

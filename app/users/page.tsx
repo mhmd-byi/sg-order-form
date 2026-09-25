@@ -36,6 +36,7 @@ export default async function UsersPage() {
                 <th className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Username</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Email</th>
                 <th className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Role</th>
+                <th className="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">City</th>
               </tr>
             </thead>
             <tbody>
@@ -45,11 +46,12 @@ export default async function UsersPage() {
                   <td className="px-4 py-3">{user.username}</td>
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3 capitalize">{user.role}</td>
+                  <td className="px-4 py-3">{user.city}</td>
                 </tr>
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
                     No users yet.
                   </td>
                 </tr>

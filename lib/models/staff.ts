@@ -1,5 +1,5 @@
 import { Schema, model, models, type InferSchemaType } from "mongoose";
-import { STAFF_ROLES } from "../constants";
+import { STAFF_ROLES, CITIES } from "../constants";
 
 const staffSchema = new Schema(
   {
@@ -8,6 +8,7 @@ const staffSchema = new Schema(
     passwordHash: { type: String, required: true },
     name: { type: String, required: true, trim: true },
     role: { type: String, enum: STAFF_ROLES, default: "staff" },
+    city: { type: String, enum: CITIES, required: true },
   },
   { timestamps: true },
 );

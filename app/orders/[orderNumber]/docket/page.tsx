@@ -6,6 +6,7 @@ import { toOrderView } from "@/lib/serialize";
 import { getSession } from "@/lib/auth";
 import { PrintButton } from "../../_components/print-button";
 import { StatusActionButton } from "../../_components/status-action-button";
+import { BottomNav } from "@/app/_components/bottom-nav";
 
 export default async function OrderDocketPage({
   params,
@@ -28,7 +29,8 @@ export default async function OrderDocketPage({
     session?.role === "artisan" && order.status === "InProgress" && order.assignedArtisan === session.staffId;
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-8">
+    <div className="mx-auto w-full max-w-2xl px-6 pt-8 pb-24 sm:pb-8">
+      <BottomNav isAdmin={session?.role === "admin"} canCreateOrders={session?.role !== "artisan"} />
       <div className="mb-6 flex items-center justify-between print:hidden">
         <PrintButton />
         {canPick && (
@@ -83,6 +85,7 @@ export default async function OrderDocketPage({
                 {index + 1}. {item.itemType} — {item.metal} {item.purity}
                 <br />
                 {item.weightGrams} g
+                {item.size && ` · Size ${item.size}${item.sizeUnit ? ` ${item.sizeUnit}` : ""}`}
               </td>
               <td className="py-3">
                 {item.photoUrl && (
@@ -95,6 +98,23 @@ export default async function OrderDocketPage({
                   />
                 )}
                 {item.designDetails}
+                <div className="mt-1 flex gap-3 text-xs print:hidden">
+                  {item.videoUrl && (
+                    <a href={item.videoUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+                      View video
+                    </a>
+                  )}
+                  {item.voiceNoteUrl && (
+                    <a
+                      href={item.voiceNoteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand hover:underline"
+                    >
+                      Play voice note
+                    </a>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

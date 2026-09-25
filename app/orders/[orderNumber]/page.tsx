@@ -59,7 +59,8 @@ export default async function OrderDetailPage({
                 day: "2-digit",
                 month: "long",
                 year: "numeric",
-              })}
+              })}{" "}
+              · {order.city}
             </p>
           </div>
           <StatusBadge status={order.status} />
@@ -74,6 +75,12 @@ export default async function OrderDetailPage({
             className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
           >
             View docket
+          </Link>
+          <Link
+            href={`/orders/${order.orderNumber}/print`}
+            className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+          >
+            Print order form
           </Link>
         </div>
 
@@ -95,6 +102,13 @@ export default async function OrderDetailPage({
               })}
             </p>
           </div>
+          <div>
+            <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Gold rate (with GST)</h2>
+            <p>
+              {order.rateStatus}
+              {order.rateValue ? ` — ₹${order.rateValue}/g (${order.ratePurity})` : ""}
+            </p>
+          </div>
           {order.labDetails && (
             <div>
               <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Lab</h2>
@@ -105,7 +119,14 @@ export default async function OrderDetailPage({
             <div>
               <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Advance received</h2>
               <p>
-                ₹{order.advancePayment.amount} on{" "}
+                {[
+                  order.advancePayment.cashAmount != null ? `₹${order.advancePayment.cashAmount} cash` : null,
+                  order.advancePayment.upiAmount != null ? `₹${order.advancePayment.upiAmount} UPI` : null,
+                  order.advancePayment.goldGrams != null ? `${order.advancePayment.goldGrams} g gold` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" + ")}{" "}
+                on{" "}
                 {new Date(order.advancePayment.date).toLocaleDateString("en-IN", {
                   day: "2-digit",
                   month: "short",
@@ -137,10 +158,35 @@ export default async function OrderDetailPage({
                   <p className="font-medium">
                     {item.itemType} — {item.metal} {item.purity}
                   </p>
-                  <p className="text-zinc-600 dark:text-zinc-400">{item.weightGrams} g</p>
+                  <p className="text-zinc-600 dark:text-zinc-400">
+                    {item.weightGrams} g
+                    {item.size && ` · Size ${item.size}${item.sizeUnit ? ` ${item.sizeUnit}` : ""}`}
+                  </p>
+                  {item.labourType && (
+                    <p className="text-zinc-600 dark:text-zinc-400">
+                      Labour: {item.labourType === "Percentage" ? `${item.labourValue}%` : `₹${item.labourValue}`}
+                    </p>
+                  )}
                   {item.designDetails && (
                     <p className="mt-1 text-zinc-600 dark:text-zinc-400">{item.designDetails}</p>
                   )}
+                  <div className="mt-1 flex gap-3 text-xs">
+                    {item.videoUrl && (
+                      <a href={item.videoUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+                        View video
+                      </a>
+                    )}
+                    {item.voiceNoteUrl && (
+                      <a
+                        href={item.voiceNoteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-brand hover:underline"
+                      >
+                        Play voice note
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

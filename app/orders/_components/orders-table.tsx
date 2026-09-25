@@ -19,7 +19,7 @@ import {
   useTable,
   type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/constants";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, CITIES } from "@/lib/constants";
 import type { OrderView } from "@/lib/types";
 import { StatusBadge } from "./status-badge";
 
@@ -69,6 +69,13 @@ const columns = helper.columns([
     enableGlobalFilter: false,
     cell: ({ getValue }) => <StatusBadge status={getValue()} />,
   }),
+  helper.accessor((row) => row.city, {
+    id: "city",
+    header: "City",
+    filterFn: "equals",
+    sortFn: "text",
+    enableGlobalFilter: false,
+  }),
   helper.accessor((row) => row.createdAt, {
     id: "createdAt",
     header: "Date",
@@ -101,6 +108,14 @@ export function OrdersTable({ orders }: { orders: OrderView[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const statusFilter = (columnFilters.find((f) => f.id === "status")?.value as string) ?? "";
+  const cityFilter = (columnFilters.find((f) => f.id === "city")?.value as string) ?? "";
+
+  function setColumnFilter(id: string, value: string) {
+    setColumnFilters((prev) => {
+      const rest = prev.filter((f) => f.id !== id);
+      return value ? [...rest, { id, value }] : rest;
+    });
+  }
 
   const table = useTable({
     features,
@@ -130,19 +145,25 @@ export function OrdersTable({ orders }: { orders: OrderView[] }) {
         />
         <select
           value={statusFilter}
-          onChange={(e) => {
-            const value = e.target.value;
-            setColumnFilters((prev) => {
-              const withoutStatus = prev.filter((f) => f.id !== "status");
-              return value ? [...withoutStatus, { id: "status", value }] : withoutStatus;
-            });
-          }}
+          onChange={(e) => setColumnFilter("status", e.target.value)}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-brand focus:outline-none dark:border-zinc-700 dark:bg-zinc-900"
         >
           <option value="">All statuses</option>
           {ORDER_STATUSES.map((status) => (
             <option key={status} value={status}>
               {ORDER_STATUS_LABELS[status]}
+            </option>
+          ))}
+        </select>
+        <select
+          value={cityFilter}
+          onChange={(e) => setColumnFilter("city", e.target.value)}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-brand focus:outline-none dark:border-zinc-700 dark:bg-zinc-900"
+        >
+          <option value="">All cities</option>
+          {CITIES.map((city) => (
+            <option key={city} value={city}>
+              {city}
             </option>
           ))}
         </select>

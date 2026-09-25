@@ -1,16 +1,24 @@
-import type { ItemType, Metal, OrderStatus } from "./constants";
+import type { ItemType, Metal, OrderStatus, LabourType, SizeUnit, RateStatus, City } from "./constants";
 
 export interface OrderItemView {
   itemType: ItemType;
   metal: Metal;
   purity: string;
   weightGrams: number;
+  size: string;
+  sizeUnit?: SizeUnit;
   designDetails: string;
   photoUrl?: string;
+  videoUrl?: string;
+  voiceNoteUrl?: string;
+  labourType?: LabourType;
+  labourValue?: number;
 }
 
 export interface AdvancePaymentView {
-  amount: number;
+  cashAmount?: number;
+  upiAmount?: number;
+  goldGrams?: number;
   date: string;
 }
 
@@ -22,6 +30,11 @@ export interface OrderView {
   createdAt: string;
   deliveryDate: string;
   labDetails: string;
+  rateStatus: RateStatus;
+  rateValue: number;
+  ratePurity: string;
+  city: City;
   advancePayment?: AdvancePaymentView;
   assignedArtisan?: string;
+  signatureUrl?: string;
 }

@@ -51,7 +51,8 @@ export function KanbanBoard({ initialOrders }: { initialOrders: OrderView[] }) {
                     {new Date(order.deliveryDate).toLocaleDateString("en-IN", {
                       day: "2-digit",
                       month: "short",
-                    })}
+                    })}{" "}
+                    · {order.city}
                   </p>
                 </Link>
               ))}
