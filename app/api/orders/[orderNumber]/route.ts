@@ -85,9 +85,12 @@ export async function PATCH(
   const currentAssignee = current.assignedArtisan ? current.assignedArtisan.toString() : null;
 
   // Path 0: admin assigning an unassigned Pending order to a specific
-  // artisan. This is the only way an order picks up an assignee now — order
-  // creation no longer takes an artisan, and artisans otherwise get orders by
-  // self-picking (Path 2 below).
+  // artisan, or reassigning an already-InProgress order to a different
+  // artisan. Order creation no longer takes an artisan, and artisans
+  // otherwise get orders by self-picking (Path 2 below), so this is the only
+  // way an order's assignee is set or changed by anyone but the artisan
+  // themselves. A reassignment resets artisanStage to Accepted since the
+  // newly-assigned artisan hasn't done any of the prior work.
   if (body.assignedArtisan !== undefined) {
     if (session.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -96,8 +99,8 @@ export async function PATCH(
     if (!parsedAssign.success) {
       return NextResponse.json({ error: parsedAssign.error.issues[0]?.message ?? "Invalid artisan" }, { status: 400 });
     }
-    if (fromStatus !== "Pending") {
-      return NextResponse.json({ error: "Only pending orders can be assigned" }, { status: 409 });
+    if (fromStatus !== "Pending" && fromStatus !== "InProgress") {
+      return NextResponse.json({ error: "Only pending or in-progress orders can be assigned" }, { status: 409 });
     }
     if (!mongoose.isValidObjectId(parsedAssign.data.assignedArtisan)) {
       return NextResponse.json({ error: "Invalid artisan" }, { status: 400 });
@@ -107,9 +110,17 @@ export async function PATCH(
       return NextResponse.json({ error: "Selected artisan not found" }, { status: 400 });
     }
 
+    const update: { assignedArtisan: string; artisanStage: ArtisanStage; status?: OrderStatus } = {
+      assignedArtisan: parsedAssign.data.assignedArtisan,
+      artisanStage: "Accepted",
+    };
+    if (fromStatus === "Pending") {
+      update.status = "InProgress";
+    }
+
     const order = await OrderModel.findOneAndUpdate(
-      { orderNumber: Number(orderNumber), status: "Pending", assignedArtisan: null },
-      { assignedArtisan: parsedAssign.data.assignedArtisan, artisanStage: "Accepted", status: "InProgress" },
+      { orderNumber: Number(orderNumber), status: fromStatus, assignedArtisan: currentAssignee },
+      update,
       { returnDocument: "after" },
     );
     if (!order) {

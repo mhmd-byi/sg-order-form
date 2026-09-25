@@ -11,13 +11,16 @@ const inputClass =
 export function AssignArtisanButton({
   orderNumber,
   artisans,
+  currentArtisanId,
 }: {
   orderNumber: number;
   artisans: { id: string; name: string }[];
+  currentArtisanId?: string;
 }) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
-  const [artisanId, setArtisanId] = useState("");
+  const [artisanId, setArtisanId] = useState(currentArtisanId ?? "");
+  const isReassign = !!currentArtisanId;
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -32,7 +35,7 @@ export function AssignArtisanButton({
       }
     },
     onSuccess: () => {
-      toast.success("Order assigned");
+      toast.success(isReassign ? "Artisan changed" : "Order assigned");
       router.refresh();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -45,7 +48,7 @@ export function AssignArtisanButton({
         onClick={() => setExpanded(true)}
         className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition-opacity hover:opacity-90"
       >
-        Assign to artisan
+        {isReassign ? "Change artisan" : "Assign to artisan"}
       </button>
     );
   }
@@ -64,10 +67,10 @@ export function AssignArtisanButton({
         <button
           type="button"
           onClick={() => mutation.mutate()}
-          disabled={mutation.isPending || !artisanId}
+          disabled={mutation.isPending || !artisanId || artisanId === currentArtisanId}
           className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {mutation.isPending ? "Assigning…" : "Confirm assign"}
+          {mutation.isPending ? "Saving…" : isReassign ? "Confirm change" : "Confirm assign"}
         </button>
         <button
           type="button"

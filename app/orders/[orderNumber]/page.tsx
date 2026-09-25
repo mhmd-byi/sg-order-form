@@ -33,7 +33,7 @@ export default async function OrderDetailPage({
   const order = toOrderView(doc);
 
   let artisans: { id: string; name: string }[] = [];
-  if (session?.role === "admin" && order.status === "Pending") {
+  if (session?.role === "admin" && (order.status === "Pending" || order.status === "InProgress")) {
     const artisanDocs = await StaffModel.find({ role: "artisan" }).select("name username").sort({ name: 1 }).lean();
     artisans = artisanDocs.map((a) => ({ id: String(a._id), name: a.name }));
   }
@@ -86,7 +86,13 @@ export default async function OrderDetailPage({
           {actions.map((action) => (
             <StatusActionButton key={action.targetStatus} orderNumber={order.orderNumber} {...action} />
           ))}
-          {artisans.length > 0 && <AssignArtisanButton orderNumber={order.orderNumber} artisans={artisans} />}
+          {artisans.length > 0 && (
+            <AssignArtisanButton
+              orderNumber={order.orderNumber}
+              artisans={artisans}
+              currentArtisanId={order.assignedArtisan}
+            />
+          )}
           <Link
             href={`/orders/${order.orderNumber}/docket`}
             className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
