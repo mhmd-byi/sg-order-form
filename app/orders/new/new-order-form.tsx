@@ -602,16 +602,35 @@ export function NewOrderForm() {
 
                     <div className="col-span-2">
                       <label className="mb-1 block text-sm font-medium">Design reference photo</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          handleMediaChange(item, "photoUrl", e.target.files?.[0], (next) =>
-                            itemsField.replaceValue(index, next),
-                          )
-                        }
-                        className="text-sm"
-                      />
+                      <div className="flex flex-wrap gap-2">
+                        <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900">
+                          Take photo
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleMediaChange(item, "photoUrl", e.target.files?.[0], (next) =>
+                                itemsField.replaceValue(index, next),
+                              )
+                            }
+                          />
+                        </label>
+                        <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900">
+                          Upload photo
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleMediaChange(item, "photoUrl", e.target.files?.[0], (next) =>
+                                itemsField.replaceValue(index, next),
+                              )
+                            }
+                          />
+                        </label>
+                      </div>
                       {mediaStatus[`${item.id}:photoUrl`] === "compressing" && (
                         <p className="mt-1 text-xs text-zinc-500">Compressing…</p>
                       )}
