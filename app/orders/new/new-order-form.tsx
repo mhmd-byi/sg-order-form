@@ -81,8 +81,7 @@ type MediaField = "photoUrl" | "videoUrl" | "voiceNoteUrl";
 export function NewOrderForm() {
   const router = useRouter();
   const [mediaStatus, setMediaStatus] = useState<Record<string, "compressing" | "uploading" | undefined>>({});
-  const [signatureBlob, setSignatureBlob] = useState<Blob | null>(null);
-  const [signatureUploading, setSignatureUploading] = useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
   const createOrder = useMutation({
     mutationFn: async (payload: unknown) => {
@@ -119,22 +118,6 @@ export function NewOrderForm() {
       advanceDate: "",
     } as OrderFormValues,
     onSubmit: async ({ value }) => {
-      let signatureUrl: string | undefined;
-      if (signatureBlob) {
-        setSignatureUploading(true);
-        try {
-          const blob = await upload(`orders/signature-${Date.now()}.png`, signatureBlob, {
-            access: "public",
-            handleUploadUrl: "/api/upload",
-          });
-          signatureUrl = blob.url;
-        } catch {
-          toast.error("Signature upload failed, continuing without it");
-        } finally {
-          setSignatureUploading(false);
-        }
-      }
-
       const payload = {
         customer: value.customer,
         items: value.items.map((item) => ({
@@ -165,7 +148,7 @@ export function NewOrderForm() {
                 date: value.advanceDate,
               }
             : undefined,
-        signatureUrl,
+        signatureUrl: signatureDataUrl ?? undefined,
       };
       const parsed = orderCreateSchema.safeParse(payload);
       if (!parsed.success) {
@@ -699,21 +682,17 @@ export function NewOrderForm() {
 
       <section className="rounded-lg border border-zinc-200 p-5 dark:border-zinc-800">
         <h2 className="mb-4 text-sm font-semibold text-zinc-500">Customer Signature</h2>
-        <SignaturePad onChange={setSignatureBlob} />
+        <SignaturePad onChange={setSignatureDataUrl} />
       </section>
 
       <form.Subscribe selector={(state) => state.isSubmitting}>
         {(isSubmitting) => (
           <button
             type="submit"
-            disabled={isSubmitting || createOrder.isPending || signatureUploading}
+            disabled={isSubmitting || createOrder.isPending}
             className="rounded-md bg-brand px-6 py-2.5 text-sm font-medium text-brand-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {signatureUploading
-              ? "Saving signature…"
-              : isSubmitting || createOrder.isPending
-                ? "Creating…"
-                : "Create order"}
+            {isSubmitting || createOrder.isPending ? "Creating…" : "Create order"}
           </button>
         )}
       </form.Subscribe>

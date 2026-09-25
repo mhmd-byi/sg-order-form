@@ -24,7 +24,9 @@ export default async function OrderDocketPage({
   }
   const order = toOrderView(doc);
 
-  const canPick = session?.role === "artisan" && order.status === "Pending";
+  const canPick =
+    session?.role === "artisan" &&
+    (order.status === "Pending" || (order.status === "InProgress" && !order.assignedArtisan));
   const canMarkShowroom =
     session?.role === "artisan" && order.status === "InProgress" && order.assignedArtisan === session.staffId;
 

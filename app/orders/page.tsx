@@ -54,7 +54,7 @@ export default async function OrdersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <Link href={`/orders/${order.orderNumber}/docket`} className="text-brand hover:underline">
-                        View slip
+                        View docket
                       </Link>
                     </td>
                   </tr>

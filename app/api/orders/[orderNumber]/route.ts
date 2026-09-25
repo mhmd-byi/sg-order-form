@@ -84,6 +84,23 @@ export async function PATCH(
   const toStatus = parsed.data.status;
   const currentAssignee = current.assignedArtisan ? current.assignedArtisan.toString() : null;
 
+  // An admin's override can push an order straight to InProgress without
+  // assigning an artisan (there's no per-artisan picker on that button). That
+  // leaves it stuck — no "Pick" button (it's not Pending) and no "Mark ready"
+  // button (nobody's assigned). Let any artisan claim an unassigned
+  // in-progress order to take ownership, without changing its status.
+  if (session.role === "artisan" && fromStatus === "InProgress" && toStatus === "InProgress" && !currentAssignee) {
+    const claimed = await OrderModel.findOneAndUpdate(
+      { orderNumber: Number(orderNumber), status: "InProgress", assignedArtisan: null },
+      { assignedArtisan: session.staffId },
+      { returnDocument: "after" },
+    );
+    if (!claimed) {
+      return NextResponse.json({ error: "Someone else already claimed this order" }, { status: 409 });
+    }
+    return NextResponse.json({ order: claimed });
+  }
+
   if (fromStatus === toStatus) {
     return NextResponse.json({ error: "Order already has that status" }, { status: 409 });
   }

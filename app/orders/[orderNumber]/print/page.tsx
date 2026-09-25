@@ -108,13 +108,9 @@ export default async function OrderPrintPage({
           {order.signatureUrl && (
             <div>
               <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Customer Signature</h2>
-              <Image
-                src={order.signatureUrl}
-                alt="Customer signature"
-                width={200}
-                height={70}
-                className="h-17.5 w-auto object-contain"
-              />
+              {/* Inline data: URL, not a remote image — next/image has nothing to optimize here */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={order.signatureUrl} alt="Customer signature" className="h-17.5 w-auto object-contain" />
             </div>
           )}
         </section>

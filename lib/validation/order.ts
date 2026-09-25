@@ -46,7 +46,8 @@ export const orderCreateSchema = z.object({
   rateValue: z.coerce.number().positive("Rate must be greater than 0"),
   ratePurity: z.string().min(1, "Rate purity is required"),
   advancePayment: advancePaymentSchema.optional(),
-  signatureUrl: z.url().optional(),
+  // A data: URL (inline PNG from the signature pad), not an http(s) URL.
+  signatureUrl: z.string().min(1).optional(),
 });
 
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;

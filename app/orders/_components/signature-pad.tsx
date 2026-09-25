@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-export function SignaturePad({ onChange }: { onChange: (blob: Blob | null) => void }) {
+export function SignaturePad({ onChange }: { onChange: (dataUrl: string | null) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
@@ -47,7 +47,7 @@ export function SignaturePad({ onChange }: { onChange: (blob: Blob | null) => vo
     if (!isDrawingRef.current) return;
     isDrawingRef.current = false;
     lastPointRef.current = null;
-    canvasRef.current?.toBlob((blob) => onChange(blob), "image/png");
+    onChange(canvasRef.current?.toDataURL("image/png") ?? null);
   }
 
   function handleClear() {
