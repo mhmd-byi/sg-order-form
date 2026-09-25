@@ -122,6 +122,15 @@ export default async function OrderDetailPage({
               <p>{order.labDetails}</p>
             </div>
           )}
+          {order.dispatchMethod && (
+            <div>
+              <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Dispatched by</h2>
+              <p>
+                {order.dispatchMethod}
+                {order.dispatchMethod === "Pickup" && order.dispatchedByName ? ` — ${order.dispatchedByName}` : ""}
+              </p>
+            </div>
+          )}
           {order.advancePayment && (
             <div>
               <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Advance received</h2>

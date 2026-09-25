@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
 import { getSession, type SessionPayload } from "@/lib/auth";
 import { orderStatusUpdateSchema, orderStageUpdateSchema } from "@/lib/validation/order";
-import { NEXT_ARTISAN_STAGE, type OrderStatus, type ArtisanStage } from "@/lib/constants";
+import { NEXT_ARTISAN_STAGE, type OrderStatus, type ArtisanStage, type DispatchMethod } from "@/lib/constants";
 
 export async function GET(
   request: Request,
@@ -101,9 +101,17 @@ export async function PATCH(
       return NextResponse.json({ error: "Stages must be completed in order" }, { status: 400 });
     }
 
-    const update: { artisanStage: ArtisanStage; status?: OrderStatus } = { artisanStage: nextStage };
+    const update: {
+      artisanStage: ArtisanStage;
+      status?: OrderStatus;
+      dispatchMethod?: DispatchMethod;
+      dispatchedByName?: string;
+    } = { artisanStage: nextStage };
     if (nextStage === "Dispatched") {
       update.status = "Ready";
+      update.dispatchMethod = parsedStage.data.dispatchMethod;
+      update.dispatchedByName =
+        parsedStage.data.dispatchMethod === "Pickup" ? parsedStage.data.dispatchedByName : undefined;
     }
 
     const order = await OrderModel.findOneAndUpdate(

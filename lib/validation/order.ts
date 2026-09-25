@@ -1,5 +1,14 @@
 import { z } from "zod";
-import { ITEM_TYPES, METALS, ORDER_STATUSES, LABOUR_TYPES, SIZE_UNITS, RATE_STATUSES, ARTISAN_STAGES } from "../constants";
+import {
+  ITEM_TYPES,
+  METALS,
+  ORDER_STATUSES,
+  LABOUR_TYPES,
+  SIZE_UNITS,
+  RATE_STATUSES,
+  ARTISAN_STAGES,
+  DISPATCH_METHODS,
+} from "../constants";
 
 export const orderItemSchema = z
   .object({
@@ -57,6 +66,17 @@ export const orderStatusUpdateSchema = z.object({
   status: z.enum(ORDER_STATUSES),
 });
 
-export const orderStageUpdateSchema = z.object({
-  artisanStage: z.enum(ARTISAN_STAGES),
-});
+export const orderStageUpdateSchema = z
+  .object({
+    artisanStage: z.enum(ARTISAN_STAGES),
+    dispatchMethod: z.enum(DISPATCH_METHODS).optional(),
+    dispatchedByName: z.string().optional(),
+  })
+  .refine((data) => data.artisanStage !== "Dispatched" || data.dispatchMethod != null, {
+    message: "Select how this was dispatched",
+    path: ["dispatchMethod"],
+  })
+  .refine((data) => data.dispatchMethod !== "Pickup" || !!data.dispatchedByName?.trim(), {
+    message: "Enter the name of who picked it up",
+    path: ["dispatchedByName"],
+  });

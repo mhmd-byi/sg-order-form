@@ -1,4 +1,14 @@
-import type { ItemType, Metal, OrderStatus, LabourType, SizeUnit, RateStatus, City, ArtisanStage } from "./constants";
+import type {
+  ItemType,
+  Metal,
+  OrderStatus,
+  LabourType,
+  SizeUnit,
+  RateStatus,
+  City,
+  ArtisanStage,
+  DispatchMethod,
+} from "./constants";
 
 export interface OrderItemView {
   itemType: ItemType;
@@ -37,5 +47,7 @@ export interface OrderView {
   advancePayment?: AdvancePaymentView;
   assignedArtisan?: string;
   artisanStage?: ArtisanStage;
+  dispatchMethod?: DispatchMethod;
+  dispatchedByName?: string;
   signatureUrl?: string;
 }

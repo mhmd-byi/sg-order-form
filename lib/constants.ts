@@ -71,3 +71,8 @@ export const NEXT_ARTISAN_STAGE: Record<ArtisanStage, ArtisanStage | null> = {
   Completed: "Dispatched",
   Dispatched: null,
 };
+
+// Captured when an artisan dispatches: did they personally deliver it to the
+// showroom, or did someone else pick it up from them?
+export const DISPATCH_METHODS = ["Self", "Pickup"] as const;
+export type DispatchMethod = (typeof DISPATCH_METHODS)[number];

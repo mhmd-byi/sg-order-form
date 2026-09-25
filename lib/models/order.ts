@@ -8,6 +8,7 @@ import {
   RATE_STATUSES,
   CITIES,
   ARTISAN_STAGES,
+  DISPATCH_METHODS,
 } from "../constants";
 
 const orderItemSchema = new Schema(
@@ -60,6 +61,8 @@ const orderSchema = new Schema(
     status: { type: String, enum: ORDER_STATUSES, default: "Pending" },
     assignedArtisan: { type: Schema.Types.ObjectId, ref: "Staff", default: null },
     artisanStage: { type: String, enum: ARTISAN_STAGES, default: null },
+    dispatchMethod: { type: String, enum: DISPATCH_METHODS },
+    dispatchedByName: { type: String, trim: true },
     createdBy: { type: Schema.Types.ObjectId, ref: "Staff", required: true },
   },
   { timestamps: true },

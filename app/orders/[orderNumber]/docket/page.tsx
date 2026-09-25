@@ -8,6 +8,7 @@ import { ARTISAN_STAGE_LABELS, NEXT_ARTISAN_STAGE, type ArtisanStage } from "@/l
 import { PrintButton } from "../../_components/print-button";
 import { StatusActionButton } from "../../_components/status-action-button";
 import { StageActionButton } from "../../_components/stage-action-button";
+import { DispatchButton } from "../../_components/dispatch-button";
 import { AppHeader } from "@/app/_components/app-header";
 
 export default async function OrderDocketPage({
@@ -50,13 +51,17 @@ export default async function OrderDocketPage({
           {canPick && (
             <StatusActionButton orderNumber={order.orderNumber} targetStatus="InProgress" label="Pick this order" />
           )}
-          {isOwner && nextStage && (
-            <StageActionButton
-              orderNumber={order.orderNumber}
-              targetStage={nextStage}
-              label={STAGE_ACTION_LABELS[nextStage]}
-            />
-          )}
+          {isOwner &&
+            nextStage &&
+            (nextStage === "Dispatched" ? (
+              <DispatchButton orderNumber={order.orderNumber} />
+            ) : (
+              <StageActionButton
+                orderNumber={order.orderNumber}
+                targetStage={nextStage}
+                label={STAGE_ACTION_LABELS[nextStage]}
+              />
+            ))}
         </div>
 
         <div className="mb-6 flex items-start justify-between border-b border-zinc-300 pb-4">
