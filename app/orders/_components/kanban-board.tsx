@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS, ARTISAN_STAGE_LABELS } from "@/lib/constants";
+import { ORDER_STATUS_LABELS, ARTISAN_STAGE_LABELS } from "@/lib/constants";
 import { getOrderPriority } from "@/lib/priority";
 import type { OrderView } from "@/lib/types";
 import { PriorityBadge } from "./priority-badge";
@@ -14,6 +14,32 @@ async function fetchOrders(): Promise<OrderView[]> {
   return data.orders;
 }
 
+// The board splits "InProgress" into one column per artisan stage
+// (Accepted/Started/Completed) so admin can see exactly where each order sits
+// in the workshop, not just that it's "in progress" somewhere. "Dispatched"
+// isn't one of these sub-columns: reaching it flips the order's top-level
+// status straight to Ready, so it never appears as an InProgress order.
+const BOARD_COLUMNS: Array<{ key: string; label: string; match: (order: OrderView) => boolean }> = [
+  { key: "Pending", label: ORDER_STATUS_LABELS.Pending, match: (order) => order.status === "Pending" },
+  {
+    key: "Accepted",
+    label: ARTISAN_STAGE_LABELS.Accepted,
+    match: (order) => order.status === "InProgress" && (order.artisanStage ?? "Accepted") === "Accepted",
+  },
+  {
+    key: "Started",
+    label: ARTISAN_STAGE_LABELS.Started,
+    match: (order) => order.status === "InProgress" && order.artisanStage === "Started",
+  },
+  {
+    key: "Completed",
+    label: ARTISAN_STAGE_LABELS.Completed,
+    match: (order) => order.status === "InProgress" && order.artisanStage === "Completed",
+  },
+  { key: "Ready", label: ORDER_STATUS_LABELS.Ready, match: (order) => order.status === "Ready" },
+  { key: "Delivered", label: ORDER_STATUS_LABELS.Delivered, match: (order) => order.status === "Delivered" },
+];
+
 export function KanbanBoard({ initialOrders }: { initialOrders: OrderView[] }) {
   const { data: orders } = useQuery({
     queryKey: ["orders"],
@@ -24,12 +50,12 @@ export function KanbanBoard({ initialOrders }: { initialOrders: OrderView[] }) {
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-2">
-      {ORDER_STATUSES.map((status) => {
-        const columnOrders = orders.filter((order) => order.status === status);
+      {BOARD_COLUMNS.map((column) => {
+        const columnOrders = orders.filter(column.match);
         return (
-          <div key={status} className="w-72 shrink-0 rounded-lg bg-zinc-50 dark:bg-zinc-900">
+          <div key={column.key} className="w-72 shrink-0 rounded-lg bg-zinc-50 dark:bg-zinc-900">
             <div className="flex items-center justify-between border-b border-zinc-200 px-3 py-2 dark:border-zinc-800">
-              <h3 className="text-sm font-semibold">{ORDER_STATUS_LABELS[status]}</h3>
+              <h3 className="text-sm font-semibold">{column.label}</h3>
               <span className="text-xs text-zinc-500">{columnOrders.length}</span>
             </div>
             <div className="flex flex-col gap-2 p-2">
@@ -54,11 +80,6 @@ export function KanbanBoard({ initialOrders }: { initialOrders: OrderView[] }) {
                     })}{" "}
                     · {order.city}
                   </p>
-                  {status === "InProgress" && (
-                    <p className="mt-1 text-xs text-zinc-500">
-                      Stage: {ARTISAN_STAGE_LABELS[order.artisanStage ?? "Accepted"]}
-                    </p>
-                  )}
                 </Link>
               ))}
               {columnOrders.length === 0 && <p className="px-1 py-4 text-center text-xs text-zinc-400">No orders</p>}
