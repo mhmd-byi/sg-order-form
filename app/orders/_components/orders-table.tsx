@@ -19,7 +19,7 @@ import {
   useTable,
   type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS, CITIES } from "@/lib/constants";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, ARTISAN_STAGE_LABELS, CITIES } from "@/lib/constants";
 import type { OrderView } from "@/lib/types";
 import { StatusBadge } from "./status-badge";
 
@@ -68,6 +68,13 @@ const columns = helper.columns([
     sortFn: "text",
     enableGlobalFilter: false,
     cell: ({ getValue }) => <StatusBadge status={getValue()} />,
+  }),
+  helper.accessor((row) => (row.status === "InProgress" ? ARTISAN_STAGE_LABELS[row.artisanStage ?? "Accepted"] : ""), {
+    id: "artisanStage",
+    header: "Artisan Stage",
+    enableSorting: false,
+    enableGlobalFilter: false,
+    cell: ({ getValue }) => getValue() || <span className="text-zinc-400">—</span>,
   }),
   helper.accessor((row) => row.city, {
     id: "city",
