@@ -57,13 +57,16 @@ export const orderCreateSchema = z.object({
   advancePayment: advancePaymentSchema.optional(),
   // A data: URL (inline PNG from the signature pad), not an http(s) URL.
   signatureUrl: z.string().min(1).optional(),
-  assignedArtisan: z.string().min(1).optional(),
 });
 
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
 
 export const orderStatusUpdateSchema = z.object({
   status: z.enum(ORDER_STATUSES),
+});
+
+export const orderAssignSchema = z.object({
+  assignedArtisan: z.string().min(1, "Select an artisan"),
 });
 
 export const orderStageUpdateSchema = z

@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
+import { StaffModel } from "@/lib/models/staff";
 import { getSession, type SessionPayload } from "@/lib/auth";
-import { orderStatusUpdateSchema, orderStageUpdateSchema } from "@/lib/validation/order";
+import { orderStatusUpdateSchema, orderStageUpdateSchema, orderAssignSchema } from "@/lib/validation/order";
 import { NEXT_ARTISAN_STAGE, type OrderStatus, type ArtisanStage, type DispatchMethod } from "@/lib/constants";
 
 export async function GET(
@@ -81,6 +83,40 @@ export async function PATCH(
 
   const fromStatus = (current.status ?? "Pending") as OrderStatus;
   const currentAssignee = current.assignedArtisan ? current.assignedArtisan.toString() : null;
+
+  // Path 0: admin assigning an unassigned Pending order to a specific
+  // artisan. This is the only way an order picks up an assignee now — order
+  // creation no longer takes an artisan, and artisans otherwise get orders by
+  // self-picking (Path 2 below).
+  if (body.assignedArtisan !== undefined) {
+    if (session.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    const parsedAssign = orderAssignSchema.safeParse(body);
+    if (!parsedAssign.success) {
+      return NextResponse.json({ error: parsedAssign.error.issues[0]?.message ?? "Invalid artisan" }, { status: 400 });
+    }
+    if (fromStatus !== "Pending") {
+      return NextResponse.json({ error: "Only pending orders can be assigned" }, { status: 409 });
+    }
+    if (!mongoose.isValidObjectId(parsedAssign.data.assignedArtisan)) {
+      return NextResponse.json({ error: "Invalid artisan" }, { status: 400 });
+    }
+    const artisan = await StaffModel.findOne({ _id: parsedAssign.data.assignedArtisan, role: "artisan" });
+    if (!artisan) {
+      return NextResponse.json({ error: "Selected artisan not found" }, { status: 400 });
+    }
+
+    const order = await OrderModel.findOneAndUpdate(
+      { orderNumber: Number(orderNumber), status: "Pending", assignedArtisan: null },
+      { assignedArtisan: parsedAssign.data.assignedArtisan, artisanStage: "Accepted", status: "InProgress" },
+      { returnDocument: "after" },
+    );
+    if (!order) {
+      return NextResponse.json({ error: "Someone else already updated this order" }, { status: 409 });
+    }
+    return NextResponse.json({ order });
+  }
 
   // Path 1: advancing the artisan's own sub-stage (Accepted -> Started ->
   // Completed -> Dispatched). Only the assigned artisan, only one step at a

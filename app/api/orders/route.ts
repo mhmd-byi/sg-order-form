@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
-import { StaffModel } from "@/lib/models/staff";
 import { getSession } from "@/lib/auth";
 import { getNextOrderNumber } from "@/lib/order-number";
 import { orderCreateSchema } from "@/lib/validation/order";
@@ -39,18 +37,6 @@ export async function POST(request: Request) {
 
   await connectDB();
 
-  let assignedArtisan: string | undefined;
-  if (parsed.data.assignedArtisan) {
-    if (!mongoose.isValidObjectId(parsed.data.assignedArtisan)) {
-      return NextResponse.json({ error: "Invalid artisan" }, { status: 400 });
-    }
-    const artisan = await StaffModel.findOne({ _id: parsed.data.assignedArtisan, role: "artisan" });
-    if (!artisan) {
-      return NextResponse.json({ error: "Selected artisan not found" }, { status: 400 });
-    }
-    assignedArtisan = parsed.data.assignedArtisan;
-  }
-
   const orderNumber = await getNextOrderNumber();
   const order = await OrderModel.create({
     orderNumber,
@@ -64,11 +50,7 @@ export async function POST(request: Request) {
     city: session.city,
     advancePayment: parsed.data.advancePayment,
     signatureUrl: parsed.data.signatureUrl,
-    // A directly-assigned order is already being worked on, not waiting to be
-    // picked from the pool, so it starts at InProgress instead of Pending.
-    status: assignedArtisan ? "InProgress" : "Pending",
-    assignedArtisan,
-    artisanStage: assignedArtisan ? "Accepted" : undefined,
+    status: "Pending",
     createdBy: session.staffId,
   });
 

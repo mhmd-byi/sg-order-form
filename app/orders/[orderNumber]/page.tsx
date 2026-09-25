@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import { OrderModel } from "@/lib/models/order";
+import { StaffModel } from "@/lib/models/staff";
 import { toOrderView } from "@/lib/serialize";
 import { getSession } from "@/lib/auth";
 import { NEXT_STATUS, ORDER_STATUS_LABELS, ARTISAN_STAGE_LABELS, type OrderStatus } from "@/lib/constants";
 import { AppHeader } from "@/app/_components/app-header";
 import { StatusBadge } from "../_components/status-badge";
 import { StatusActionButton } from "../_components/status-action-button";
+import { AssignArtisanButton } from "../_components/assign-artisan-button";
 import { CommentSection } from "../_components/comment-section";
 
 export default async function OrderDetailPage({
@@ -29,6 +31,12 @@ export default async function OrderDetailPage({
     notFound();
   }
   const order = toOrderView(doc);
+
+  let artisans: { id: string; name: string }[] = [];
+  if (session?.role === "admin" && order.status === "Pending") {
+    const artisanDocs = await StaffModel.find({ role: "artisan" }).select("name username").sort({ name: 1 }).lean();
+    artisans = artisanDocs.map((a) => ({ id: String(a._id), name: a.name }));
+  }
 
   const actions: Array<{ targetStatus: OrderStatus; label: string; variant?: "primary" | "secondary" }> = [];
   if (session?.role === "admin") {
@@ -78,6 +86,7 @@ export default async function OrderDetailPage({
           {actions.map((action) => (
             <StatusActionButton key={action.targetStatus} orderNumber={order.orderNumber} {...action} />
           ))}
+          {artisans.length > 0 && <AssignArtisanButton orderNumber={order.orderNumber} artisans={artisans} />}
           <Link
             href={`/orders/${order.orderNumber}/docket`}
             className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"

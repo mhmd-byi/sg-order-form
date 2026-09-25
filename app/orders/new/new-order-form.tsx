@@ -51,7 +51,6 @@ interface OrderFormValues {
   advanceUpi: number | "";
   advanceGold: number | "";
   advanceDate: string;
-  assignedArtisan: string;
 }
 
 function createEmptyItem(): ItemFormValue {
@@ -79,7 +78,7 @@ const inputClass =
 
 type MediaField = "photoUrl" | "videoUrl" | "voiceNoteUrl";
 
-export function NewOrderForm({ artisans }: { artisans: { id: string; name: string }[] }) {
+export function NewOrderForm() {
   const router = useRouter();
   const [mediaStatus, setMediaStatus] = useState<Record<string, "compressing" | "uploading" | undefined>>({});
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
@@ -117,7 +116,6 @@ export function NewOrderForm({ artisans }: { artisans: { id: string; name: strin
       advanceUpi: "",
       advanceGold: "",
       advanceDate: "",
-      assignedArtisan: "",
     } as OrderFormValues,
     onSubmit: async ({ value }) => {
       const payload = {
@@ -151,7 +149,6 @@ export function NewOrderForm({ artisans }: { artisans: { id: string; name: strin
               }
             : undefined,
         signatureUrl: signatureDataUrl ?? undefined,
-        assignedArtisan: value.assignedArtisan === "" ? undefined : value.assignedArtisan,
       };
       const parsed = orderCreateSchema.safeParse(payload);
       if (!parsed.success) {
@@ -412,25 +409,6 @@ export function NewOrderForm({ artisans }: { artisans: { id: string; name: strin
                   onBlur={field.handleBlur}
                   className={inputClass}
                 />
-              </div>
-            )}
-          </form.Field>
-          <form.Field name="assignedArtisan">
-            {(field) => (
-              <div>
-                <label className="mb-1 block text-sm font-medium">Assign to artisan</label>
-                <select
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">Unassigned — let artisans pick</option>
-                  {artisans.map((artisan) => (
-                    <option key={artisan.id} value={artisan.id}>
-                      {artisan.name}
-                    </option>
-                  ))}
-                </select>
               </div>
             )}
           </form.Field>
