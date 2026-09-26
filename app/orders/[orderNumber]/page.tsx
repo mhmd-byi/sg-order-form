@@ -34,7 +34,12 @@ export default async function OrderDetailPage({
 
   let artisans: { id: string; name: string }[] = [];
   if (session?.role === "admin" && (order.status === "Pending" || order.status === "InProgress")) {
-    const artisanDocs = await StaffModel.find({ role: "artisan" }).select("name username").sort({ name: 1 }).lean();
+    // Only that city's artisans — an order can only go to the workshop it was
+    // placed at.
+    const artisanDocs = await StaffModel.find({ role: "artisan", city: order.city })
+      .select("name username")
+      .sort({ name: 1 })
+      .lean();
     artisans = artisanDocs.map((a) => ({ id: String(a._id), name: a.name }));
   }
 

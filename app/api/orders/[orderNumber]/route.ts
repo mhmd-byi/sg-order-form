@@ -5,7 +5,7 @@ import { OrderModel } from "@/lib/models/order";
 import { StaffModel } from "@/lib/models/staff";
 import { getSession, type SessionPayload } from "@/lib/auth";
 import { orderStatusUpdateSchema, orderStageUpdateSchema, orderAssignSchema } from "@/lib/validation/order";
-import { NEXT_ARTISAN_STAGE, type OrderStatus, type ArtisanStage, type DispatchMethod } from "@/lib/constants";
+import { NEXT_ARTISAN_STAGE, type OrderStatus, type ArtisanStage, type DispatchMethod, type City } from "@/lib/constants";
 
 export async function GET(
   request: Request,
@@ -39,6 +39,7 @@ function resolveTransition(
   session: SessionPayload,
   from: OrderStatus,
   to: OrderStatus,
+  orderCity: City,
 ): { allowed: boolean; assignedArtisan?: string | null; artisanStage?: ArtisanStage | null } {
   if (session.role === "admin") {
     return {
@@ -56,8 +57,9 @@ function resolveTransition(
     return { allowed: false };
   }
 
-  // artisan
+  // artisan — can only pick up orders placed by their own city's showroom.
   if (from === "Pending" && to === "InProgress") {
+    if (session.city !== orderCity) return { allowed: false };
     return { allowed: true, assignedArtisan: session.staffId, artisanStage: "Accepted" };
   }
   return { allowed: false };
@@ -105,9 +107,13 @@ export async function PATCH(
     if (!mongoose.isValidObjectId(parsedAssign.data.assignedArtisan)) {
       return NextResponse.json({ error: "Invalid artisan" }, { status: 400 });
     }
-    const artisan = await StaffModel.findOne({ _id: parsedAssign.data.assignedArtisan, role: "artisan" });
+    const artisan = await StaffModel.findOne({
+      _id: parsedAssign.data.assignedArtisan,
+      role: "artisan",
+      city: current.city,
+    });
     if (!artisan) {
-      return NextResponse.json({ error: "Selected artisan not found" }, { status: 400 });
+      return NextResponse.json({ error: `Selected artisan is not based in ${current.city}` }, { status: 400 });
     }
 
     const update: { assignedArtisan: string; artisanStage: ArtisanStage; status?: OrderStatus } = {
@@ -191,6 +197,9 @@ export async function PATCH(
   // artisan to take ownership. Let any artisan claim an unassigned
   // in-progress order, without changing its status.
   if (session.role === "artisan" && fromStatus === "InProgress" && toStatus === "InProgress" && !currentAssignee) {
+    if (session.city !== current.city) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     const claimed = await OrderModel.findOneAndUpdate(
       { orderNumber: Number(orderNumber), status: "InProgress", assignedArtisan: null },
       { assignedArtisan: session.staffId, artisanStage: "Accepted" },
@@ -206,7 +215,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Order already has that status" }, { status: 409 });
   }
 
-  const transition = resolveTransition(session, fromStatus, toStatus);
+  const transition = resolveTransition(session, fromStatus, toStatus, current.city);
   if (!transition.allowed) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

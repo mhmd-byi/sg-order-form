@@ -5,7 +5,13 @@ import type { OrderView } from "@/lib/types";
 import { OrdersTable } from "./orders-table";
 import { KanbanBoard } from "./kanban-board";
 
-export function OrdersView({ orders }: { orders: OrderView[] }) {
+export function OrdersView({
+  orders,
+  artisans,
+}: {
+  orders: OrderView[];
+  artisans: { id: string; name: string }[];
+}) {
   const [view, setView] = useState<"table" | "board">("table");
 
   return (
@@ -26,7 +32,11 @@ export function OrdersView({ orders }: { orders: OrderView[] }) {
           </button>
         ))}
       </div>
-      {view === "table" ? <OrdersTable orders={orders} /> : <KanbanBoard initialOrders={orders} />}
+      {view === "table" ? (
+        <OrdersTable orders={orders} artisans={artisans} />
+      ) : (
+        <KanbanBoard initialOrders={orders} />
+      )}
     </div>
   );
 }

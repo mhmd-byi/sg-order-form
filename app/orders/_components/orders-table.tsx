@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   columnFilteringFeature,
@@ -39,7 +39,8 @@ const helper = createColumnHelper<typeof features, OrderView>();
 
 const GLOBAL_FILTER_COLUMNS = new Set(["orderNumber", "customerName", "customerPhone", "itemsSummary"]);
 
-const columns = helper.columns([
+function buildColumns(artisanNameById: Map<string, string>) {
+  return helper.columns([
   helper.accessor((row) => row.orderNumber, {
     id: "orderNumber",
     header: "Order #",
@@ -83,6 +84,17 @@ const columns = helper.columns([
     sortFn: "text",
     enableGlobalFilter: false,
   }),
+  helper.accessor((row) => row.assignedArtisan ?? "", {
+    id: "assignedArtisan",
+    header: "Artisan",
+    filterFn: "equals",
+    enableSorting: false,
+    enableGlobalFilter: false,
+    cell: ({ getValue }) => {
+      const id = getValue();
+      return id ? (artisanNameById.get(id) ?? "—") : <span className="text-zinc-400">—</span>;
+    },
+  }),
   helper.accessor((row) => row.createdAt, {
     id: "createdAt",
     header: "Date",
@@ -108,14 +120,25 @@ const columns = helper.columns([
       </Link>
     ),
   }),
-]);
+  ]);
+}
 
-export function OrdersTable({ orders }: { orders: OrderView[] }) {
+export function OrdersTable({
+  orders,
+  artisans,
+}: {
+  orders: OrderView[];
+  artisans: { id: string; name: string }[];
+}) {
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const statusFilter = (columnFilters.find((f) => f.id === "status")?.value as string) ?? "";
   const cityFilter = (columnFilters.find((f) => f.id === "city")?.value as string) ?? "";
+  const artisanFilter = (columnFilters.find((f) => f.id === "assignedArtisan")?.value as string) ?? "";
+
+  const artisanNameById = useMemo(() => new Map(artisans.map((a) => [a.id, a.name])), [artisans]);
+  const columns = useMemo(() => buildColumns(artisanNameById), [artisanNameById]);
 
   function setColumnFilter(id: string, value: string) {
     setColumnFilters((prev) => {
@@ -171,6 +194,18 @@ export function OrdersTable({ orders }: { orders: OrderView[] }) {
           {CITIES.map((city) => (
             <option key={city} value={city}>
               {city}
+            </option>
+          ))}
+        </select>
+        <select
+          value={artisanFilter}
+          onChange={(e) => setColumnFilter("assignedArtisan", e.target.value)}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-brand focus:outline-none dark:border-zinc-700 dark:bg-zinc-900"
+        >
+          <option value="">All artisans</option>
+          {artisans.map((artisan) => (
+            <option key={artisan.id} value={artisan.id}>
+              {artisan.name}
             </option>
           ))}
         </select>
