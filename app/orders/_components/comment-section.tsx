@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { OrderCommentView } from "@/lib/types";
+import { AudioPlayer } from "./audio-player";
 
 const inputClass =
   "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-brand focus:outline-none dark:border-zinc-700 dark:bg-zinc-900";
@@ -81,16 +82,7 @@ export function CommentSection({
               </span>
             </div>
             {comment.text && <p className="text-zinc-700 dark:text-zinc-300">{comment.text}</p>}
-            {comment.voiceNoteUrl && (
-              <a
-                href={comment.voiceNoteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 inline-block text-xs text-brand hover:underline"
-              >
-                Play voice note
-              </a>
-            )}
+            {comment.voiceNoteUrl && <AudioPlayer src={comment.voiceNoteUrl} className="mt-1" />}
           </div>
         ))}
       </div>

@@ -10,6 +10,7 @@ import { StageActionButton } from "../../_components/stage-action-button";
 import { DispatchButton } from "../../_components/dispatch-button";
 import { CommentSection } from "../../_components/comment-section";
 import { PhotoThumbnail } from "../../_components/photo-thumbnail";
+import { AudioPlayer } from "../../_components/audio-player";
 import { AppHeader } from "@/app/_components/app-header";
 
 export default async function OrderDocketPage({
@@ -118,7 +119,7 @@ export default async function OrderDocketPage({
                     />
                   )}
                   {item.designDetails}
-                  <div className="mt-1 flex gap-3 text-xs print:hidden">
+                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs print:hidden">
                     {item.videoUrl && (
                       <a
                         href={item.videoUrl}
@@ -129,16 +130,7 @@ export default async function OrderDocketPage({
                         View video
                       </a>
                     )}
-                    {item.voiceNoteUrl && (
-                      <a
-                        href={item.voiceNoteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-brand hover:underline"
-                      >
-                        Play voice note
-                      </a>
-                    )}
+                    {item.voiceNoteUrl && <AudioPlayer src={item.voiceNoteUrl} />}
                   </div>
                 </td>
               </tr>

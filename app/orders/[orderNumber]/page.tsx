@@ -12,6 +12,7 @@ import { StatusActionButton } from "../_components/status-action-button";
 import { AssignArtisanButton } from "../_components/assign-artisan-button";
 import { CommentSection } from "../_components/comment-section";
 import { PhotoThumbnail } from "../_components/photo-thumbnail";
+import { AudioPlayer } from "../_components/audio-player";
 
 export default async function OrderDetailPage({
   params,
@@ -206,22 +207,13 @@ export default async function OrderDetailPage({
                   {item.designDetails && (
                     <p className="mt-1 text-zinc-600 dark:text-zinc-400">{item.designDetails}</p>
                   )}
-                  <div className="mt-1 flex gap-3 text-xs">
+                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs">
                     {item.videoUrl && (
                       <a href={item.videoUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
                         View video
                       </a>
                     )}
-                    {item.voiceNoteUrl && (
-                      <a
-                        href={item.voiceNoteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-brand hover:underline"
-                      >
-                        Play voice note
-                      </a>
-                    )}
+                    {item.voiceNoteUrl && <AudioPlayer src={item.voiceNoteUrl} />}
                   </div>
                 </div>
               </div>
