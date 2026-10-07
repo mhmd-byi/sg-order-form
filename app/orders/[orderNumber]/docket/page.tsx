@@ -110,13 +110,18 @@ export default async function OrderDocketPage({
                   {item.size && ` · Size ${item.size}${item.sizeUnit ? ` ${item.sizeUnit}` : ""}`}
                 </td>
                 <td className="py-3">
-                  {item.photoUrl && (
-                    <PhotoThumbnail
-                      src={item.photoUrl}
-                      alt={item.itemType}
-                      size={64}
-                      className="mb-2 h-16 w-16 object-cover"
-                    />
+                  {item.photoUrls.length > 0 && (
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      {item.photoUrls.map((url, photoIndex) => (
+                        <PhotoThumbnail
+                          key={photoIndex}
+                          src={url}
+                          alt={item.itemType}
+                          size={64}
+                          className="h-16 w-16 object-cover"
+                        />
+                      ))}
+                    </div>
                   )}
                   {item.designDetails}
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-xs print:hidden">

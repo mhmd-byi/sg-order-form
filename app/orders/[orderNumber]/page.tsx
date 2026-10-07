@@ -178,13 +178,18 @@ export default async function OrderDetailPage({
                 key={index}
                 className="flex gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
               >
-                {item.photoUrl && (
-                  <PhotoThumbnail
-                    src={item.photoUrl}
-                    alt={item.itemType}
-                    size={80}
-                    className="h-20 w-20 rounded-md object-cover"
-                  />
+                {item.photoUrls.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {item.photoUrls.map((url, photoIndex) => (
+                      <PhotoThumbnail
+                        key={photoIndex}
+                        src={url}
+                        alt={item.itemType}
+                        size={80}
+                        className="h-20 w-20 rounded-md object-cover"
+                      />
+                    ))}
+                  </div>
                 )}
                 <div className="flex-1 text-sm">
                   <p className="font-medium">

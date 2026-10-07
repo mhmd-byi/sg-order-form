@@ -24,6 +24,7 @@ interface OrderDocLike {
     sizeUnit?: SizeUnit | null;
     designDetails?: string | null;
     photoUrl?: string | null;
+    photoUrls?: string[] | null;
     videoUrl?: string | null;
     voiceNoteUrl?: string | null;
     labourType?: LabourType | null;
@@ -73,7 +74,7 @@ export function toOrderView(doc: OrderDocLike): OrderView {
       size: item.size ?? "",
       sizeUnit: item.sizeUnit ?? undefined,
       designDetails: item.designDetails ?? "",
-      photoUrl: item.photoUrl ?? undefined,
+      photoUrls: item.photoUrls && item.photoUrls.length > 0 ? item.photoUrls : item.photoUrl ? [item.photoUrl] : [],
       videoUrl: item.videoUrl ?? undefined,
       voiceNoteUrl: item.voiceNoteUrl ?? undefined,
       labourType: item.labourType ?? undefined,

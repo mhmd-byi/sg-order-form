@@ -19,7 +19,7 @@ export const orderItemSchema = z
     size: z.string().optional().default(""),
     sizeUnit: z.enum(SIZE_UNITS).optional(),
     designDetails: z.string().optional().default(""),
-    photoUrl: z.url().optional(),
+    photoUrls: z.array(z.url()).optional().default([]),
     videoUrl: z.url().optional(),
     voiceNoteUrl: z.url().optional(),
     labourType: z.enum(LABOUR_TYPES).optional(),

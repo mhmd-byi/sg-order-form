@@ -21,7 +21,10 @@ const orderItemSchema = new Schema(
     size: { type: String, trim: true, default: "" },
     sizeUnit: { type: String, enum: SIZE_UNITS },
     designDetails: { type: String, trim: true, default: "" },
+    // `photoUrl` (singular) is kept, unused by new writes, so older orders
+    // created before multi-photo support still have a photo to show.
     photoUrl: { type: String },
+    photoUrls: { type: [String], default: [] },
     videoUrl: { type: String },
     voiceNoteUrl: { type: String },
     labourType: { type: String, enum: LABOUR_TYPES },

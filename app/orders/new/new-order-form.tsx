@@ -32,7 +32,7 @@ interface ItemFormValue {
   size: string;
   sizeUnit: SizeUnit | "";
   designDetails: string;
-  photoUrl?: string;
+  photoUrls: string[];
   videoUrl?: string;
   voiceNoteUrl?: string;
   labourType: LabourType | "None";
@@ -63,7 +63,7 @@ function createEmptyItem(): ItemFormValue {
     size: "",
     sizeUnit: "",
     designDetails: "",
-    photoUrl: undefined,
+    photoUrls: [],
     videoUrl: undefined,
     voiceNoteUrl: undefined,
     labourType: "None",
@@ -76,7 +76,7 @@ const MAX_PHOTO_SIZE_BYTES = 1024 * 1024; // 1MB
 const inputClass =
   "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-brand focus:outline-none dark:border-zinc-700 dark:bg-zinc-900";
 
-type MediaField = "photoUrl" | "videoUrl" | "voiceNoteUrl";
+type MediaField = "videoUrl" | "voiceNoteUrl";
 
 export function NewOrderForm() {
   const router = useRouter();
@@ -128,7 +128,7 @@ export function NewOrderForm() {
           size: item.size,
           sizeUnit: item.sizeUnit === "" ? undefined : item.sizeUnit,
           designDetails: item.designDetails,
-          photoUrl: item.photoUrl,
+          photoUrls: item.photoUrls,
           videoUrl: item.videoUrl,
           voiceNoteUrl: item.voiceNoteUrl,
           labourType: item.labourType === "None" ? undefined : item.labourType,
@@ -168,23 +168,9 @@ export function NewOrderForm() {
     if (!file) return;
     const statusKey = `${item.id}:${field}`;
 
-    let fileToUpload = file;
-    if (field === "photoUrl" && file.size > MAX_PHOTO_SIZE_BYTES) {
-      setMediaStatus((prev) => ({ ...prev, [statusKey]: "compressing" }));
-      try {
-        fileToUpload = await imageCompression(file, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: false,
-        });
-      } catch {
-        toast.error("Couldn't compress photo, uploading original");
-      }
-    }
-
     setMediaStatus((prev) => ({ ...prev, [statusKey]: "uploading" }));
     try {
-      const blob = await upload(`orders/${item.id}-${field}-${fileToUpload.name}`, fileToUpload, {
+      const blob = await upload(`orders/${item.id}-${field}-${file.name}`, file, {
         access: "public",
         handleUploadUrl: "/api/upload",
       });
@@ -194,6 +180,50 @@ export function NewOrderForm() {
     } finally {
       setMediaStatus((prev) => ({ ...prev, [statusKey]: undefined }));
     }
+  }
+
+  async function handlePhotoFilesChange(
+    item: ItemFormValue,
+    files: FileList | null,
+    onChange: (next: ItemFormValue) => void,
+  ) {
+    if (!files || files.length === 0) return;
+    const statusKey = `${item.id}:photoUrl`;
+
+    setMediaStatus((prev) => ({ ...prev, [statusKey]: "uploading" }));
+    try {
+      const uploadedUrls: string[] = [];
+      for (const file of Array.from(files)) {
+        let fileToUpload = file;
+        if (file.size > MAX_PHOTO_SIZE_BYTES) {
+          setMediaStatus((prev) => ({ ...prev, [statusKey]: "compressing" }));
+          try {
+            fileToUpload = await imageCompression(file, {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1920,
+              useWebWorker: false,
+            });
+          } catch {
+            toast.error("Couldn't compress photo, uploading original");
+          }
+          setMediaStatus((prev) => ({ ...prev, [statusKey]: "uploading" }));
+        }
+        const blob = await upload(`orders/${item.id}-photo-${Date.now()}-${fileToUpload.name}`, fileToUpload, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+        uploadedUrls.push(blob.url);
+      }
+      onChange({ ...item, photoUrls: [...item.photoUrls, ...uploadedUrls] });
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setMediaStatus((prev) => ({ ...prev, [statusKey]: undefined }));
+    }
+  }
+
+  function removePhoto(item: ItemFormValue, photoIndex: number, onChange: (next: ItemFormValue) => void) {
+    onChange({ ...item, photoUrls: item.photoUrls.filter((_, i) => i !== photoIndex) });
   }
 
   return (
@@ -601,7 +631,7 @@ export function NewOrderForm() {
                     </div>
 
                     <div className="col-span-2">
-                      <label className="mb-1 block text-sm font-medium">Design reference photo</label>
+                      <label className="mb-1 block text-sm font-medium">Design reference photos</label>
                       <div className="flex flex-wrap gap-2">
                         <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900">
                           Take photo
@@ -610,24 +640,27 @@ export function NewOrderForm() {
                             accept="image/*"
                             capture="environment"
                             className="hidden"
-                            onChange={(e) =>
-                              handleMediaChange(item, "photoUrl", e.target.files?.[0], (next) =>
+                            onChange={(e) => {
+                              handlePhotoFilesChange(item, e.target.files, (next) =>
                                 itemsField.replaceValue(index, next),
-                              )
-                            }
+                              );
+                              e.target.value = "";
+                            }}
                           />
                         </label>
                         <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900">
-                          Upload photo
+                          Upload photos
                           <input
                             type="file"
                             accept="image/*"
+                            multiple
                             className="hidden"
-                            onChange={(e) =>
-                              handleMediaChange(item, "photoUrl", e.target.files?.[0], (next) =>
+                            onChange={(e) => {
+                              handlePhotoFilesChange(item, e.target.files, (next) =>
                                 itemsField.replaceValue(index, next),
-                              )
-                            }
+                              );
+                              e.target.value = "";
+                            }}
                           />
                         </label>
                       </div>
@@ -637,9 +670,23 @@ export function NewOrderForm() {
                       {mediaStatus[`${item.id}:photoUrl`] === "uploading" && (
                         <p className="mt-1 text-xs text-zinc-500">Uploading…</p>
                       )}
-                      {item.photoUrl && !mediaStatus[`${item.id}:photoUrl`] && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.photoUrl} alt="" className="mt-2 h-16 w-16 rounded-md object-cover" />
+                      {item.photoUrls.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {item.photoUrls.map((url, photoIndex) => (
+                            <div key={photoIndex} className="relative">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={url} alt="" className="h-16 w-16 rounded-md object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => removePhoto(item, photoIndex, (next) => itemsField.replaceValue(index, next))}
+                                className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-xs text-white hover:bg-zinc-700"
+                                aria-label="Remove photo"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       )}
                     </div>
 

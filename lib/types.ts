@@ -27,7 +27,7 @@ export interface OrderItemView {
   size: string;
   sizeUnit?: SizeUnit;
   designDetails: string;
-  photoUrl?: string;
+  photoUrls: string[];
   videoUrl?: string;
   voiceNoteUrl?: string;
   labourType?: LabourType;

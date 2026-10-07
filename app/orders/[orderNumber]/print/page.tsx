@@ -102,14 +102,19 @@ function OrderFormSheet({ order, copyLabel }: { order: OrderView; copyLabel: str
         <div className="space-y-4 print:space-y-1">
           {order.items.map((item, index) => (
             <div key={index} className="flex gap-4 border border-zinc-300 p-4 text-sm print:gap-2 print:p-1.5">
-              {item.photoUrl && (
-                <Image
-                  src={item.photoUrl}
-                  alt={item.itemType}
-                  width={80}
-                  height={80}
-                  className="h-20 w-20 object-cover print:h-12 print:w-12"
-                />
+              {item.photoUrls.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {item.photoUrls.map((url, photoIndex) => (
+                    <Image
+                      key={photoIndex}
+                      src={url}
+                      alt={item.itemType}
+                      width={80}
+                      height={80}
+                      className="h-20 w-20 object-cover print:h-12 print:w-12"
+                    />
+                  ))}
+                </div>
               )}
               <div className="flex-1">
                 <p className="font-medium">
