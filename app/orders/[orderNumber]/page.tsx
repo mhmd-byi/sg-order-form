@@ -126,13 +126,15 @@ export default async function OrderDetailPage({
               })}
             </p>
           </div>
-          <div>
-            <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Gold rate (with GST)</h2>
-            <p>
-              {order.rateStatus}
-              {order.rateValue ? ` — ₹${order.rateValue}/g (${order.ratePurity})` : ""}
-            </p>
-          </div>
+          {order.rateStatus && (
+            <div>
+              <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Gold rate (with GST)</h2>
+              <p>
+                {order.rateStatus}
+                {order.rateValue ? ` — ₹${order.rateValue}/g (${order.ratePurity})` : ""}
+              </p>
+            </div>
+          )}
           {order.labDetails && (
             <div>
               <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500">Lab</h2>

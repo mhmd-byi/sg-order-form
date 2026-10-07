@@ -49,9 +49,9 @@ export interface OrderView {
   createdAt: string;
   deliveryDate: string;
   labDetails: string;
-  rateStatus: RateStatus;
-  rateValue: number;
-  ratePurity: string;
+  rateStatus?: RateStatus;
+  rateValue?: number;
+  ratePurity?: string;
   city: City;
   advancePayment?: AdvancePaymentView;
   assignedArtisan?: string;

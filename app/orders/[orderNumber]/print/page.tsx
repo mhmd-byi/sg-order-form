@@ -54,13 +54,15 @@ function OrderFormSheet({ order, copyLabel }: { order: OrderView; copyLabel: str
       </section>
 
       <section className="mb-6 grid grid-cols-2 gap-4 text-sm print:mb-2 print:gap-2">
-        <div>
-          <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500 print:mb-0.5">Gold rate (with GST)</h2>
-          <p>
-            {order.rateStatus}
-            {order.rateValue ? ` — ₹${order.rateValue}/g (${order.ratePurity})` : ""}
-          </p>
-        </div>
+        {order.rateStatus && (
+          <div>
+            <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500 print:mb-0.5">Gold rate (with GST)</h2>
+            <p>
+              {order.rateStatus}
+              {order.rateValue ? ` — ₹${order.rateValue}/g (${order.ratePurity})` : ""}
+            </p>
+          </div>
+        )}
         {order.labDetails && (
           <div>
             <h2 className="mb-1 text-xs font-semibold uppercase text-zinc-500 print:mb-0.5">Lab</h2>

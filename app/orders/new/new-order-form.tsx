@@ -136,9 +136,15 @@ export function NewOrderForm() {
         })),
         deliveryDate: value.deliveryDate,
         labDetails: value.labDetails,
-        rateStatus: value.rateStatus === "" ? undefined : value.rateStatus,
-        rateValue: value.rateValue,
-        ratePurity: value.ratePurity,
+        // Gold rate only applies when the order actually includes a gold
+        // item — otherwise there's nothing to lock a rate against.
+        ...(value.items.some((item) => item.metal === "Gold")
+          ? {
+              rateStatus: value.rateStatus === "" ? undefined : value.rateStatus,
+              rateValue: value.rateValue,
+              ratePurity: value.ratePurity,
+            }
+          : {}),
         advancePayment:
           (value.advanceCash !== "" || value.advanceUpi !== "" || value.advanceGold !== "") && value.advanceDate
             ? {
@@ -316,63 +322,73 @@ export function NewOrderForm() {
               </div>
             )}
           </form.Field>
-          <form.Field name="rateStatus">
-            {(field) => (
-              <div>
-                <label className="mb-1 block text-sm font-medium">Gold rate (with GST)</label>
-                <select
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value as RateStatus)}
-                  className={inputClass}
-                >
-                  {RATE_STATUSES.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </form.Field>
-          <form.Subscribe selector={(state) => state.values.rateStatus}>
-            {(rateStatus) =>
-              rateStatus !== "" && (
+          <form.Subscribe selector={(state) => state.values.items.some((item) => item.metal === "Gold")}>
+            {(hasGoldItem) =>
+              hasGoldItem && (
                 <>
-                  <form.Field name="rateValue">
+                  <form.Field name="rateStatus">
                     {(field) => (
                       <div>
-                        <label className="mb-1 block text-sm font-medium">Rate (₹ per gram)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value === "" ? "" : Number(e.target.value))}
-                          onBlur={field.handleBlur}
-                          required
-                          className={inputClass}
-                        />
-                      </div>
-                    )}
-                  </form.Field>
-                  <form.Field name="ratePurity">
-                    {(field) => (
-                      <div>
-                        <label className="mb-1 block text-sm font-medium">Rate purity</label>
+                        <label className="mb-1 block text-sm font-medium">Gold rate (with GST)</label>
                         <select
                           value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
+                          onChange={(e) => field.handleChange(e.target.value as RateStatus)}
                           className={inputClass}
                         >
-                          {PURITY_SUGGESTIONS.Gold.map((p) => (
-                            <option key={p} value={p}>
-                              {p}
+                          {RATE_STATUSES.map((r) => (
+                            <option key={r} value={r}>
+                              {r}
                             </option>
                           ))}
                         </select>
                       </div>
                     )}
                   </form.Field>
+                  <form.Subscribe selector={(state) => state.values.rateStatus}>
+                    {(rateStatus) =>
+                      rateStatus !== "" && (
+                        <>
+                          <form.Field name="rateValue">
+                            {(field) => (
+                              <div>
+                                <label className="mb-1 block text-sm font-medium">Rate (₹ per gram)</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={field.state.value}
+                                  onChange={(e) =>
+                                    field.handleChange(e.target.value === "" ? "" : Number(e.target.value))
+                                  }
+                                  onBlur={field.handleBlur}
+                                  required
+                                  className={inputClass}
+                                />
+                              </div>
+                            )}
+                          </form.Field>
+                          <form.Field name="ratePurity">
+                            {(field) => (
+                              <div>
+                                <label className="mb-1 block text-sm font-medium">Rate purity</label>
+                                <select
+                                  value={field.state.value}
+                                  onChange={(e) => field.handleChange(e.target.value)}
+                                  className={inputClass}
+                                >
+                                  {PURITY_SUGGESTIONS.Gold.map((p) => (
+                                    <option key={p} value={p}>
+                                      {p}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+                          </form.Field>
+                        </>
+                      )
+                    }
+                  </form.Subscribe>
                 </>
               )
             }

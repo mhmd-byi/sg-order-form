@@ -84,9 +84,9 @@ export function toOrderView(doc: OrderDocLike): OrderView {
     createdAt: new Date(doc.createdAt).toISOString(),
     deliveryDate: new Date(doc.deliveryDate).toISOString(),
     labDetails: doc.labDetails ?? "",
-    rateStatus: doc.rateStatus ?? "Unfixed",
-    rateValue: doc.rateValue ?? 0,
-    ratePurity: doc.ratePurity ?? "",
+    rateStatus: doc.rateStatus ?? undefined,
+    rateValue: doc.rateValue ?? undefined,
+    ratePurity: doc.ratePurity ?? undefined,
     city: doc.city,
     advancePayment:
       doc.advancePayment?.date != null &&

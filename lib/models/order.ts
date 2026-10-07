@@ -63,9 +63,10 @@ const orderSchema = new Schema(
     },
     deliveryDate: { type: Date, required: true },
     labDetails: { type: String, trim: true, default: "" },
-    rateStatus: { type: String, enum: RATE_STATUSES, required: true, default: "Unfixed" },
-    rateValue: { type: Number, min: 0, required: true },
-    ratePurity: { type: String, required: true, trim: true },
+    // Only set when the order includes a gold item — see orderCreateSchema.
+    rateStatus: { type: String, enum: RATE_STATUSES },
+    rateValue: { type: Number, min: 0 },
+    ratePurity: { type: String, trim: true },
     city: { type: String, enum: CITIES, required: true },
     signatureUrl: { type: String },
     advancePayment: {

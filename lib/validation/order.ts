@@ -42,22 +42,35 @@ const advancePaymentSchema = z
     path: ["cashAmount"],
   });
 
-export const orderCreateSchema = z.object({
-  customer: z.object({
-    name: z.string().min(1, "Customer name is required"),
-    phone: z.string().min(1, "Phone number is required"),
-    address: z.string().min(1, "Address is required"),
-  }),
-  items: z.array(orderItemSchema).min(1, "Add at least one item"),
-  deliveryDate: z.coerce.date("Delivery date is required"),
-  labDetails: z.string().optional().default(""),
-  rateStatus: z.enum(RATE_STATUSES),
-  rateValue: z.coerce.number().positive("Rate must be greater than 0"),
-  ratePurity: z.string().min(1, "Rate purity is required"),
-  advancePayment: advancePaymentSchema.optional(),
-  // A data: URL (inline PNG from the signature pad), not an http(s) URL.
-  signatureUrl: z.string().min(1).optional(),
-});
+export const orderCreateSchema = z
+  .object({
+    customer: z.object({
+      name: z.string().min(1, "Customer name is required"),
+      phone: z.string().min(1, "Phone number is required"),
+      address: z.string().min(1, "Address is required"),
+    }),
+    items: z.array(orderItemSchema).min(1, "Add at least one item"),
+    deliveryDate: z.coerce.date("Delivery date is required"),
+    labDetails: z.string().optional().default(""),
+    // Only relevant when the order includes a gold item — see the refine
+    // below. Left unset otherwise rather than defaulted, so a silver/platinum
+    // only order doesn't carry a meaningless "gold rate".
+    rateStatus: z.enum(RATE_STATUSES).optional(),
+    rateValue: z.coerce.number().positive("Rate must be greater than 0").optional(),
+    ratePurity: z.string().optional(),
+    advancePayment: advancePaymentSchema.optional(),
+    // A data: URL (inline PNG from the signature pad), not an http(s) URL.
+    signatureUrl: z.string().min(1).optional(),
+  })
+  .refine(
+    (data) =>
+      !data.items.some((item) => item.metal === "Gold") ||
+      (data.rateStatus != null && data.rateValue != null && !!data.ratePurity?.trim()),
+    {
+      message: "Gold rate is required when the order includes a gold item",
+      path: ["rateValue"],
+    },
+  );
 
 export type OrderCreateInput = z.infer<typeof orderCreateSchema>;
 
