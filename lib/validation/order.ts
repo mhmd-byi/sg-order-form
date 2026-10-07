@@ -56,7 +56,9 @@ export const orderCreateSchema = z
     // below. Left unset otherwise rather than defaulted, so a silver/platinum
     // only order doesn't carry a meaningless "gold rate".
     rateStatus: z.enum(RATE_STATUSES).optional(),
-    rateValue: z.coerce.number().positive("Rate must be greater than 0").optional(),
+    // 0 is a valid, deliberate value meaning "rate not booked yet" — only
+    // reject negatives.
+    rateValue: z.coerce.number().min(0, "Rate can't be negative").optional(),
     ratePurity: z.string().optional(),
     advancePayment: advancePaymentSchema.optional(),
     // A data: URL (inline PNG from the signature pad), not an http(s) URL.
